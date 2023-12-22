@@ -1,0 +1,7 @@
+{
+    "CellSize": 50,
+    "CellsInRow": 15,
+    "CellsInColumn": 15,
+
+    "StepCount": 365
+}
