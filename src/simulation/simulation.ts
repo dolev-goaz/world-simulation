@@ -1,9 +1,9 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell } from "./cell";
-import { Direction, DirectionVectors, TDirection } from "./direction";
+import { Direction, DirectionVectors, Directions, TDirection, addDirections, getDirectionFromVector } from "./direction";
 
-type Neighbors = Record<TDirection, Cell>;
+type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 
 export class Simulation {
     map: WorldMap;
@@ -24,9 +24,47 @@ export class Simulation {
         this.map.cells.forEach(this.updateCell.bind(this));
     }
 
+    // TODO: should only affect the next generation's cell, not current cell
     private updateCell(cell: Cell) {
         const neighbors = this.cellNeighbors.get(cell);
-        if (!neighbors) throw new Error("Invalid cell")
+        if (!neighbors) throw new Error("Invalid cell");
+
+        this.updateCellWind(cell, neighbors);
+    }
+
+    private updateCellWind(cell: Cell, neighbors: Neighbors) {
+        const affectingNeighbors = this.getNeighborsAffectingWind(cell, neighbors);
+
+        const newVector = affectingNeighbors
+            .map((neighbor) => DirectionVectors[neighbor.windDirection])
+            .reduce((res, current) => {
+                return addDirections(res, current);
+            }, [0, 0]);
+
+        const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
+        const normalizedVector = newVector.map((force) => clamp(force, -1, 1)) as [number, number]; // normalize the wind
+
+        cell.windDirection = getDirectionFromVector(normalizedVector);
+    }
+
+    private getNeighborsAffectingWind(cell: Cell, neighbors: Neighbors) {
+        const out: Cell[] = [];
+        Directions.forEach((direction) => {
+            const neighborInDirection = neighbors[direction];
+            if (!neighborInDirection) return;
+
+            const neighborDirectionVector = DirectionVectors[direction];
+            const neighborWindDirectionVector = DirectionVectors[neighborInDirection.windDirection];
+
+            // console.log(neighborInDirection, neighborDirectionVector, neighborWindDirectionVector)
+            const [dx, dy] = addDirections(neighborDirectionVector, neighborWindDirectionVector);
+
+            // if the forces are opposing- the neighbor's wind affects the cell
+            if (dx === 0 && dy === 0) {
+                out.push(neighborInDirection);
+            }
+        });
+        return out;
     }
 
     private getNeighbors(cell: Cell) {
