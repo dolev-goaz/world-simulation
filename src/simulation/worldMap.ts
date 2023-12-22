@@ -1,5 +1,6 @@
 import { Cell, createCell, drawCell } from "./cell";
 import config from "../config.json";
+import { randomDirection } from "./direction";
 
 export class WorldMap {
     cells: Cell[];
@@ -24,7 +25,7 @@ export class WorldMap {
         this.cells = [];
         Array.from({ length: rows }).forEach((_, rowIndex) => {
             Array.from({ length: cols }).forEach((_, colIndex) => {
-                this.cells.push(createCell(colIndex, rowIndex, cellSize));
+                this.cells.push(createCell(colIndex, rowIndex, cellSize, randomDirection()));
             });
         });
 
@@ -35,6 +36,12 @@ export class WorldMap {
     }
 
     draw() {
+        this.clear();
         this.cells.forEach(this.drawCell.bind(this));
+    }
+
+    clear() {
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }

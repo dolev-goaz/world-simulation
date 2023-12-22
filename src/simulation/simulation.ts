@@ -1,10 +1,13 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell } from "./cell";
+import { Direction, TDirection } from "./direction";
+
+type Neighbors = Record<TDirection, Cell>;
 
 export class Simulation {
     map: WorldMap;
-    cellNeighbors: Map<Cell, Cell[]>; // this is by reference so its fine
+    cellNeighbors: Map<Cell, Neighbors>; // this is by reference so its fine
 
     constructor() {
         this.map = new WorldMap(config.CellsInRow, config.CellsInColumn, config.CellSize);
@@ -23,15 +26,16 @@ export class Simulation {
 
     private updateCell(cell: Cell) {
         const neighbors = this.cellNeighbors.get(cell);
+        if (!neighbors) throw new Error("Invalid cell")
     }
 
     private getNeighbors(cell: Cell) {
-        return [
-            this.getNeighbor(cell, 0, 1),
-            this.getNeighbor(cell, 0, -1),
-            this.getNeighbor(cell, 1, 0),
-            this.getNeighbor(cell, -1, 0),
-        ].filter(Boolean);
+        return {
+            [Direction.North]: this.getNeighbor(cell, -1, 0),
+            [Direction.South]: this.getNeighbor(cell, 1, 0),
+            [Direction.East]: this.getNeighbor(cell, 0, 1),
+            [Direction.West]: this.getNeighbor(cell, 0, -1),
+        }
     }
 
     private getNeighbor(cell: Cell, dy: number, dx: number) {
