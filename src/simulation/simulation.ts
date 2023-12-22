@@ -1,7 +1,7 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell } from "./cell";
-import { Direction, TDirection } from "./direction";
+import { Direction, DirectionVectors, TDirection } from "./direction";
 
 type Neighbors = Record<TDirection, Cell>;
 
@@ -31,14 +31,18 @@ export class Simulation {
 
     private getNeighbors(cell: Cell) {
         return {
-            [Direction.North]: this.getNeighbor(cell, -1, 0),
-            [Direction.South]: this.getNeighbor(cell, 1, 0),
-            [Direction.East]: this.getNeighbor(cell, 0, 1),
-            [Direction.West]: this.getNeighbor(cell, 0, -1),
+            [Direction.North]: this.getNeighbor(cell, DirectionVectors[Direction.North]),
+            [Direction.South]: this.getNeighbor(cell, DirectionVectors[Direction.South]),
+            [Direction.East]: this.getNeighbor(cell, DirectionVectors[Direction.East]),
+            [Direction.West]: this.getNeighbor(cell, DirectionVectors[Direction.West]),
+            [Direction.NorthEast]: this.getNeighbor(cell, DirectionVectors[Direction.NorthEast]),
+            [Direction.NorthWest]: this.getNeighbor(cell, DirectionVectors[Direction.NorthWest]),
+            [Direction.SouthEast]: this.getNeighbor(cell, DirectionVectors[Direction.SouthEast]),
+            [Direction.SouthWest]: this.getNeighbor(cell, DirectionVectors[Direction.SouthWest]),
         }
     }
 
-    private getNeighbor(cell: Cell, dy: number, dx: number) {
+    private getNeighbor(cell: Cell, [dx, dy]: [number, number]) {
         const xIndex = (cell.indexX + dx) % config.CellsInRow;
         const yIndex = (cell.indexY + dy) % config.CellsInColumn;
 
