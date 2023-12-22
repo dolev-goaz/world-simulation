@@ -1,12 +1,19 @@
-import { Map } from "./map";
+import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell } from "./cell";
 
 export class Simulation {
-    map: Map;
+    map: WorldMap;
+    cellNeighbors: Map<Cell, Cell[]>; // this is by reference so its fine
 
     constructor() {
-        this.map = new Map(config.CellsInRow, config.CellsInColumn, config.CellSize);
+        this.map = new WorldMap(config.CellsInRow, config.CellsInColumn, config.CellSize);
+
+        this.cellNeighbors = new Map();
+
+        this.map.cells.forEach((cell) => {
+            this.cellNeighbors.set(cell, this.getNeighbors(cell));
+        });
     }
 
     step() {
@@ -15,7 +22,7 @@ export class Simulation {
     }
 
     private updateCell(cell: Cell) {
-        const neighbors = this.getNeighbors(cell);
+        const neighbors = this.cellNeighbors.get(cell);
     }
 
     private getNeighbors(cell: Cell) {

@@ -1,7 +1,7 @@
 import { Cell, createCell, drawCell } from "./cell";
 import config from "../config.json";
 
-export class Map {
+export class WorldMap {
     cells: Cell[];
 
     private canvas: HTMLCanvasElement;
