@@ -1,4 +1,7 @@
+import { Area, AreaColor, TArea } from "./area";
 import { DirectionArrows, TDirection } from "./direction";
+
+const cellBorderThickness = 1;
 
 export type CloudInfo = {
     isRaining: boolean;
@@ -17,6 +20,8 @@ export type Cell = {
     drawY: number;
     drawSize: number;
 
+    area: TArea;
+
     currentGenerationFields: SimulationFields;
     nextGenerationFields: Partial<SimulationFields>;
 
@@ -29,6 +34,8 @@ export function createCell(indexX: number, indexY: number, drawSize: number, win
         indexY: indexY,
         drawX: indexX * drawSize,
         drawY: indexY * drawSize,
+        // TODO: determine how to initialize area type
+        area: Area.Iceberg,
         currentGenerationFields: {
             windDirection: windDirection,
             strokeColor: 'black',
@@ -40,14 +47,22 @@ export function createCell(indexX: number, indexY: number, drawSize: number, win
 }
 
 export function drawCell(ctx: CanvasRenderingContext2D, cell: Cell) {
-    drawOutline(ctx, cell);
+    DrawArea(ctx, cell);
     drawWind(ctx, cell);
     drawCloud(ctx, cell);
 }
 
-function drawOutline(ctx: CanvasRenderingContext2D, cell: Cell) {
+function DrawArea(ctx: CanvasRenderingContext2D, cell: Cell) {
     ctx.strokeStyle = cell.currentGenerationFields.strokeColor;
     ctx.strokeRect(cell.drawX, cell.drawY, cell.drawSize, cell.drawSize);
+
+    ctx.fillStyle = AreaColor[cell.area];
+    ctx.fillRect(
+        cell.drawX + cellBorderThickness,
+        cell.drawY + cellBorderThickness,
+        cell.drawSize - 2 * cellBorderThickness,
+        cell.drawSize - 2 * cellBorderThickness
+    );
 }
 
 function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
