@@ -1,6 +1,5 @@
-import { Cell, createCell, drawCell } from "./cell";
+import { Cell, drawCell } from "./cell";
 import config from "../config.json";
-import { randomDirection } from "./direction";
 
 export class WorldMap {
     cells: Cell[];
@@ -8,7 +7,7 @@ export class WorldMap {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
-    constructor(rows: number, cols: number, cellSize: number) {
+    constructor(cells: Cell[] = []) {
         this.canvas = document.createElement("canvas");
         this.canvas.width = config.CellSize * config.CellsInColumn;
         this.canvas.height = config.CellSize * config.CellsInRow;
@@ -16,19 +15,10 @@ export class WorldMap {
         document.body.appendChild(this.canvas);
 
         const ctx = this.canvas.getContext("2d");
-        if (!ctx) {
-            alert("An error has occured. please refresh");
-            throw new Error("An error has occured. please refresh");
-        }
+        if (!ctx) throw new Error("An error has occured. please refresh");
         this.ctx = ctx;
 
-        this.cells = [];
-        Array.from({ length: rows }).forEach((_, rowIndex) => {
-            Array.from({ length: cols }).forEach((_, colIndex) => {
-                this.cells.push(createCell(colIndex, rowIndex, cellSize, randomDirection()));
-            });
-        });
-
+        this.cells = cells;
     }
 
     private drawCell(cell: Cell) {

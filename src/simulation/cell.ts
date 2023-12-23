@@ -1,4 +1,4 @@
-import { Area, AreaColor, TArea } from "./area";
+import { AreaColor, TArea } from "./area";
 import { DirectionArrows, TDirection } from "./direction";
 
 const cellBorderThickness = 1;
@@ -27,15 +27,20 @@ export type Cell = {
 
 }
 
-export function createCell(indexX: number, indexY: number, drawSize: number, windDirection: TDirection): Cell {
+export function createCell(
+    indexX: number,
+    indexY: number,
+    drawSize: number,
+    windDirection: TDirection,
+    area: TArea
+): Cell {
     return {
         drawSize: drawSize,
         indexX: indexX,
         indexY: indexY,
         drawX: indexX * drawSize,
         drawY: indexY * drawSize,
-        // TODO: determine how to initialize area type
-        area: Area.Iceberg,
+        area: area,
         currentGenerationFields: {
             windDirection: windDirection,
             strokeColor: 'black',

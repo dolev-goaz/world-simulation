@@ -1,7 +1,8 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
-import { Cell, CloudInfo, SimulationFields } from "./cell";
-import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector } from "./direction";
+import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
+import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
+import { TArea } from "./area";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 
@@ -12,16 +13,20 @@ export class Simulation {
     generation: number;
     private generationHeader: HTMLDivElement;
 
-    constructor() {
+    constructor(areaMap: TArea[]) {
         this.generation = 0;
         this.generationHeader = document.createElement('div');
         document.body.appendChild(this.generationHeader);
         this.updateHeader();
 
-        this.map = new WorldMap(config.CellsInRow, config.CellsInColumn, config.CellSize);
+        const cells: Cell[] = areaMap.map((area, index) => {
+            const indexX = index % config.CellsInColumn
+            const indexY = (index - indexX) / config.CellsInRow;
+            return createCell(indexX, indexY, config.CellSize, randomDirection(), area)
+        })
+        this.map = new WorldMap(cells);
 
         this.cellNeighbors = new Map();
-
         this.map.cells.forEach((cell) => {
             this.cellNeighbors.set(cell, this.getNeighbors(cell));
         });
@@ -84,7 +89,7 @@ export class Simulation {
     // wind is only updated according to neighbors, not including the actual cell
     private updateCellWind(cell: Cell, affectingNeighbors: Cell[]) {
         // this is for debugging mostly- show which cells are affected by wind
-        if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
+        // if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
         const newVector = affectingNeighbors
             .map((neighbor) => DirectionVectors[neighbor.currentGenerationFields.windDirection])

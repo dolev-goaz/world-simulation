@@ -1,9 +1,9 @@
 export const Area = {
-    Forest: "Forest",
-    City: "City",
-    Sea: "Sea",
-    Land: "Land",
-    Iceberg: "Iceberg",
+    Forest: "F",
+    City: "C",
+    Sea: "S",
+    Land: "L",
+    Iceberg: "I",
 } as const;
 
 export const AreaColor = {
