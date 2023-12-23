@@ -1,15 +1,23 @@
 import { Simulation } from "./simulation/simulation";
-import config from "./config.json";
+import config from "./config.json"
+
 
 const simulation = new Simulation();
-
-let iteration = 0;
-do {
+function step() {
+    simulation.calcNextGen();
     simulation.map.draw();
-    simulation.step();
-    await sleep(1000);
-    ++iteration;
-} while (iteration < config.StepCount);
+    simulation.moveNextGen();
+}
+const button = document.createElement("button");
+button.innerText = "Step"
+button.onclick = step;
+document.body.appendChild(button)
+
+for (let i = 0; i < config.StepCount - 1; ++i) {
+    step();
+    await sleep(800)
+}
+button.click();
 
 function sleep(time: number) {
     return new Promise((resolve) => {

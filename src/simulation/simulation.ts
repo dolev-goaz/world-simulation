@@ -9,7 +9,15 @@ export class Simulation {
     map: WorldMap;
     cellNeighbors: Map<Cell, Neighbors>; // this is by reference so its fine
 
+    generation: number;
+    private generationHeader: HTMLDivElement;
+
     constructor() {
+        this.generation = 0;
+        this.generationHeader = document.createElement('div');
+        document.body.appendChild(this.generationHeader);
+        this.updateHeader();
+
         this.map = new WorldMap(config.CellsInRow, config.CellsInColumn, config.CellSize);
 
         this.cellNeighbors = new Map();
@@ -19,9 +27,23 @@ export class Simulation {
         });
     }
 
-    step() {
+    private updateHeader() {
+        const maxLength = 'Generation '.length + 4; // 4 digit generations
+        this.generationHeader.style.width = `${maxLength}ch`
+        this.generationHeader.innerText = `Generation ${this.generation}`;
+    }
+
+    calcNextGen() {
+        this.map.cells.forEach((cell) => {
+            cell.nextGenerationFields.strokeColor = 'black';
+        });
         this.map.cells.forEach(this.calculateCellNextGen.bind(this));
+    }
+    moveNextGen() {
         this.map.cells.forEach(this.moveCellNextGen.bind(this));
+
+        ++this.generation;
+        this.updateHeader();
     }
 
     private moveCellNextGen(cell: Cell) {
@@ -29,7 +51,6 @@ export class Simulation {
         cell.nextGenerationFields = {};
     }
 
-    // TODO: should only affect the next generation's cell, not current cell
     private calculateCellNextGen(cell: Cell) {
         const neighbors = this.cellNeighbors.get(cell);
         if (!neighbors) throw new Error("Invalid cell");
@@ -37,8 +58,11 @@ export class Simulation {
         this.updateCellWind(cell, neighbors);
     }
 
+    // wind is only updated according to neighbors, not including the actual cell
     private updateCellWind(cell: Cell, neighbors: Neighbors) {
         const affectingNeighbors = this.getNeighborsAffectingWind(cell, neighbors);
+
+        if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
         const newVector = affectingNeighbors
             .map((neighbor) => DirectionVectors[neighbor.currentGenerationFields.windDirection])
@@ -58,10 +82,10 @@ export class Simulation {
             const neighborInDirection = neighbors[direction];
             if (!neighborInDirection) return;
 
+            if (neighborInDirection.currentGenerationFields.windDirection === Direction.None) return;
             const neighborDirectionVector = DirectionVectors[direction];
             const neighborWindDirectionVector = DirectionVectors[neighborInDirection.currentGenerationFields.windDirection];
 
-            // console.log(neighborInDirection, neighborDirectionVector, neighborWindDirectionVector)
             const [dx, dy] = addDirections(neighborDirectionVector, neighborWindDirectionVector);
 
             // if the forces are opposing- the neighbor's wind affects the cell
@@ -86,8 +110,10 @@ export class Simulation {
     }
 
     private getNeighbor(cell: Cell, [dx, dy]: [number, number]) {
-        const xIndex = (cell.indexX + dx) % config.CellsInRow;
-        const yIndex = (cell.indexY + dy) % config.CellsInColumn;
+        // neighbors are found cyclically- leftmost cell has the rightmost cell as its neighbor
+        // bottom-most cell has the top-most cell as its neighbor
+        const xIndex = (cell.indexX + dx + config.CellsInRow) % config.CellsInRow;
+        const yIndex = (cell.indexY + dy + config.CellsInColumn) % config.CellsInColumn;
 
         return this.map.cells[yIndex * config.CellsInRow + xIndex];
     }

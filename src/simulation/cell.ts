@@ -2,6 +2,7 @@ import { DirectionArrows, TDirection } from "./direction";
 
 export type SimulationFields = {
     windDirection: TDirection;
+    strokeColor: string;
 }
 
 export type Cell = {
@@ -24,7 +25,8 @@ export function createCell(indexX: number, indexY: number, drawSize: number, win
         drawX: indexX * drawSize,
         drawY: indexY * drawSize,
         currentGenerationFields: {
-            windDirection: windDirection
+            windDirection: windDirection,
+            strokeColor: 'black',
         },
         nextGenerationFields: {},
     }
@@ -36,6 +38,7 @@ export function drawCell(ctx: CanvasRenderingContext2D, cell: Cell) {
 }
 
 function drawOutline(ctx: CanvasRenderingContext2D, cell: Cell) {
+    ctx.strokeStyle = cell.currentGenerationFields.strokeColor;
     ctx.strokeRect(cell.drawX, cell.drawY, cell.drawSize, cell.drawSize);
 }
 
