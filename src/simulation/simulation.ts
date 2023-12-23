@@ -1,6 +1,6 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
-import { Cell, SimulationFields } from "./cell";
+import { Cell, CloudInfo, SimulationFields } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector } from "./direction";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
@@ -54,14 +54,36 @@ export class Simulation {
     private calculateCellNextGen(cell: Cell) {
         const neighbors = this.cellNeighbors.get(cell);
         if (!neighbors) throw new Error("Invalid cell");
+        const affectingNeighbors = this.getNeighborsAffectingWind(cell, neighbors);
 
-        this.updateCellWind(cell, neighbors);
+        this.updateCellWind(cell, affectingNeighbors);
+        this.updateCellCloud(cell, affectingNeighbors);
+    }
+
+    private updateCellCloud(cell: Cell, affectingNeighbors: Cell[]) {
+        // Get clouds moving towards current cell
+        const clouds = affectingNeighbors
+            .map((neighbor) => neighbor.currentGenerationFields.cloud)
+            .filter(Boolean) as CloudInfo[];
+
+        if (cell.currentGenerationFields.windDirection == Direction.None && cell.currentGenerationFields.cloud) {
+            // if the current cell has a cloud that won't move
+            clouds.push(cell.currentGenerationFields.cloud);
+        }
+
+        if (clouds.length == 0) {
+            cell.nextGenerationFields.cloud = undefined;
+            return;
+        }
+
+        // if one of the clouds are raining- all of them are raining
+        const isRaining = clouds.findIndex((cloud) => cloud.isRaining) != -1;
+        cell.nextGenerationFields.cloud = { isRaining };
     }
 
     // wind is only updated according to neighbors, not including the actual cell
-    private updateCellWind(cell: Cell, neighbors: Neighbors) {
-        const affectingNeighbors = this.getNeighborsAffectingWind(cell, neighbors);
-
+    private updateCellWind(cell: Cell, affectingNeighbors: Cell[]) {
+        // this is for debugging mostly- show which cells are affected by wind
         if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
         const newVector = affectingNeighbors

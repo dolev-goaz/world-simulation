@@ -1,8 +1,13 @@
 import { DirectionArrows, TDirection } from "./direction";
 
+export type CloudInfo = {
+    isRaining: boolean;
+}
+
 export type SimulationFields = {
     windDirection: TDirection;
     strokeColor: string;
+    cloud?: CloudInfo;
 }
 
 export type Cell = {
@@ -27,6 +32,8 @@ export function createCell(indexX: number, indexY: number, drawSize: number, win
         currentGenerationFields: {
             windDirection: windDirection,
             strokeColor: 'black',
+            // TODO: determine how to initialize clouds
+            cloud: { isRaining: false }
         },
         nextGenerationFields: {},
     }
@@ -35,6 +42,7 @@ export function createCell(indexX: number, indexY: number, drawSize: number, win
 export function drawCell(ctx: CanvasRenderingContext2D, cell: Cell) {
     drawOutline(ctx, cell);
     drawWind(ctx, cell);
+    drawCloud(ctx, cell);
 }
 
 function drawOutline(ctx: CanvasRenderingContext2D, cell: Cell) {
@@ -49,4 +57,20 @@ function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = 'black';
     ctx.fillText(arrow, cell.drawX + 5, cell.drawY + fontSize);
+}
+
+function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
+    const cloud = cell.currentGenerationFields.cloud;
+    if (!cloud) return;
+    const color = cloud.isRaining ? 'gray' : 'lightgray';
+
+
+    const radX = 20;
+    const radY = 10;
+    const drawY = cell.drawY + cell.drawSize - radY - 4; // slight offset from below
+    const drawX = cell.drawX + cell.drawSize / 2; // center
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(drawX, drawY, radX, radY, 0, 0, 2 * Math.PI);
+    ctx.fill();
 }
