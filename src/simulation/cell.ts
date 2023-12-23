@@ -5,6 +5,7 @@ const cellBorderThickness = 1;
 
 export type CloudInfo = {
     isRaining: boolean;
+    lifeRemaining: number;
 }
 
 export type SimulationFields = {
@@ -45,7 +46,7 @@ export function createCell(
             windDirection: windDirection,
             strokeColor: 'black',
             // TODO: determine how to initialize clouds
-            cloud: { isRaining: false }
+            // cloud: { isRaining: false }
         },
         nextGenerationFields: {},
     }

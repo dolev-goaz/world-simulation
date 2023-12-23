@@ -2,7 +2,8 @@ import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
-import { TArea } from "./area";
+import { Area, TArea } from "./area";
+import { randomRange } from "./helper";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 
@@ -77,13 +78,30 @@ export class Simulation {
         }
 
         if (clouds.length == 0) {
-            cell.nextGenerationFields.cloud = undefined;
+            let cloud: CloudInfo | undefined = undefined;
+            // try to create new cloud
+            if (cell.area == Area.Sea) {
+                const randomChance = Math.random();
+                if (randomChance < config.Cloud.FormChance.Sea) {
+                    cloud = {
+                        isRaining: false,
+                        lifeRemaining: randomRange(config.Cloud.Lifespan.Min, config.Cloud.Lifespan.Max),
+                    };
+                }
+            }
+            cell.nextGenerationFields.cloud = cloud;
             return;
         }
 
         // if one of the clouds are raining- all of them are raining
+        clouds.sort((cloudA, cloudB) => cloudB.lifeRemaining - cloudA.lifeRemaining);
+        // if any cloud is raning- the new cloud is rainy
         const isRaining = clouds.findIndex((cloud) => cloud.isRaining) != -1;
-        cell.nextGenerationFields.cloud = { isRaining };
+
+        // lifespan is the average of the cloud's lifespan. -1 to accomodate the next generation
+        const lifespan = (clouds[0].lifeRemaining + clouds[clouds.length - 1].lifeRemaining) / 2 - 1;
+
+        cell.nextGenerationFields.cloud = lifespan <= 0? undefined: { isRaining, lifeRemaining: lifespan };
     }
 
     // wind is only updated according to neighbors, not including the actual cell

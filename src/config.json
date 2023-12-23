@@ -4,5 +4,16 @@
     "CellsInColumn": 15,
 
     "StepCount": 365,
+
+    "Cloud": {
+        "Lifespan": {
+            "Min": 1,
+            "Max": 4
+        },
+        "FormChance": {
+            "Sea": 0.1
+        }
+    },
+
     "Map1": "SSSSSSSSSSSSSSS\nSSSIIIIIIIIISSS\nSSSIIIIIIIIISSS\nSSSSSSSSSIIISSS\nSSFFCLSSSIIISSS\nSSFCCLSSSSSSSSS\nSSSSSSSSSSSSSSS\nSSSSLLLLLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLLLLLLLCCSS\nSSSSLCCCCCCCCSS\nSSSSLCCCCCCCCSS\nSSSSLLLLLLLLLSS\nSSSSSSSSSSSSSSS"
 }
