@@ -1,5 +1,9 @@
 import { DirectionArrows, TDirection } from "./direction";
 
+export type SimulationFields = {
+    windDirection: TDirection;
+}
+
 export type Cell = {
     indexX: number;
     indexY: number;
@@ -7,7 +11,9 @@ export type Cell = {
     drawY: number;
     drawSize: number;
 
-    windDirection: TDirection;
+    currentGenerationFields: SimulationFields;
+    nextGenerationFields: Partial<SimulationFields>;
+
 }
 
 export function createCell(indexX: number, indexY: number, drawSize: number, windDirection: TDirection): Cell {
@@ -17,7 +23,10 @@ export function createCell(indexX: number, indexY: number, drawSize: number, win
         indexY: indexY,
         drawX: indexX * drawSize,
         drawY: indexY * drawSize,
-        windDirection: windDirection,
+        currentGenerationFields: {
+            windDirection: windDirection
+        },
+        nextGenerationFields: {},
     }
 }
 
@@ -31,7 +40,7 @@ function drawOutline(ctx: CanvasRenderingContext2D, cell: Cell) {
 }
 
 function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
-    const arrow = DirectionArrows[cell.windDirection];
+    const arrow = DirectionArrows[cell.currentGenerationFields.windDirection];
 
     const fontSize = 16;
     ctx.font = `${fontSize}px serif`;

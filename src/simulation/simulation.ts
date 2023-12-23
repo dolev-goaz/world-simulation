@@ -1,6 +1,6 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
-import { Cell } from "./cell";
+import { Cell, SimulationFields } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, addDirections, getDirectionFromVector } from "./direction";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
@@ -20,12 +20,17 @@ export class Simulation {
     }
 
     step() {
-        this.map.draw();
-        this.map.cells.forEach(this.updateCell.bind(this));
+        this.map.cells.forEach(this.calculateCellNextGen.bind(this));
+        this.map.cells.forEach(this.moveCellNextGen.bind(this));
+    }
+
+    private moveCellNextGen(cell: Cell) {
+        cell.currentGenerationFields = cell.nextGenerationFields as SimulationFields;
+        cell.nextGenerationFields = {};
     }
 
     // TODO: should only affect the next generation's cell, not current cell
-    private updateCell(cell: Cell) {
+    private calculateCellNextGen(cell: Cell) {
         const neighbors = this.cellNeighbors.get(cell);
         if (!neighbors) throw new Error("Invalid cell");
 
@@ -36,7 +41,7 @@ export class Simulation {
         const affectingNeighbors = this.getNeighborsAffectingWind(cell, neighbors);
 
         const newVector = affectingNeighbors
-            .map((neighbor) => DirectionVectors[neighbor.windDirection])
+            .map((neighbor) => DirectionVectors[neighbor.currentGenerationFields.windDirection])
             .reduce((res, current) => {
                 return addDirections(res, current);
             }, [0, 0]);
@@ -44,7 +49,7 @@ export class Simulation {
         const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
         const normalizedVector = newVector.map((force) => clamp(force, -1, 1)) as [number, number]; // normalize the wind
 
-        cell.windDirection = getDirectionFromVector(normalizedVector);
+        cell.nextGenerationFields.windDirection = getDirectionFromVector(normalizedVector);
     }
 
     private getNeighborsAffectingWind(cell: Cell, neighbors: Neighbors) {
@@ -54,7 +59,7 @@ export class Simulation {
             if (!neighborInDirection) return;
 
             const neighborDirectionVector = DirectionVectors[direction];
-            const neighborWindDirectionVector = DirectionVectors[neighborInDirection.windDirection];
+            const neighborWindDirectionVector = DirectionVectors[neighborInDirection.currentGenerationFields.windDirection];
 
             // console.log(neighborInDirection, neighborDirectionVector, neighborWindDirectionVector)
             const [dx, dy] = addDirections(neighborDirectionVector, neighborWindDirectionVector);

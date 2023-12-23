@@ -3,11 +3,13 @@ import config from "./config.json";
 
 const simulation = new Simulation();
 
-
-for (let i = 0; i < config.StepCount; ++i) {
+let iteration = 0;
+do {
+    simulation.map.draw();
     simulation.step();
-    await sleep(500);
-}
+    await sleep(1000);
+    ++iteration;
+} while (iteration < config.StepCount);
 
 function sleep(time: number) {
     return new Promise((resolve) => {
