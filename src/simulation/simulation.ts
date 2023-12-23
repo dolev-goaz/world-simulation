@@ -106,7 +106,7 @@ export class Simulation {
      * Finds them by those cell's wind, using vector arithmetic.
      * @returns 
      */
-    private getNeighborsAffectingWind(cell: Cell, neighbors: Neighbors) {
+    private getNeighborsAffectingWind(_cell: Cell, neighbors: Neighbors) {
         const out: Cell[] = [];
         Directions.forEach((direction) => {
             const neighborInDirection = neighbors[direction];
