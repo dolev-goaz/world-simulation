@@ -2,8 +2,8 @@ import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
-import { Area, TArea } from "./area";
-import { randomRange } from "./helper";
+import { TArea } from "./area";
+import { joinClouds, tryCreateCloud } from "./cloud";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 
@@ -78,32 +78,11 @@ export class Simulation {
         }
 
         if (clouds.length == 0) {
-            let cloud: CloudInfo | undefined = undefined;
-            // try to create new cloud
-            if (cell.area == Area.Sea) {
-                const randomChance = Math.random();
-                if (randomChance < config.Cloud.FormChance.Sea) {
-                    const lifespan = randomRange(config.Cloud.Lifespan.Min, config.Cloud.Lifespan.Max);
-                    const timeToRain = randomRange(1, lifespan - 1);
-                    cloud = {
-                        timeToRain: timeToRain,
-                        lifeRemaining: lifespan,
-                    };
-                }
-            }
-            cell.nextGenerationFields.cloud = cloud;
+            cell.nextGenerationFields.cloud = tryCreateCloud(cell.area);
             return;
         }
 
-        // if one of the clouds are raining- all of them are raining
-        clouds.sort((cloudA, cloudB) => cloudB.lifeRemaining - cloudA.lifeRemaining);
-        // if any cloud is raning- the new cloud is rainy
-        const timeToRain = Math.min(...clouds.map((cloud) => cloud.timeToRain));
-
-        // lifespan is the average of the cloud's lifespan.
-        const lifespan = (clouds[0].lifeRemaining + clouds[clouds.length - 1].lifeRemaining) / 2;
-
-        cell.nextGenerationFields.cloud = lifespan <= 0 ? undefined : { timeToRain: timeToRain - 1, lifeRemaining: lifespan - 1 };
+        cell.nextGenerationFields.cloud = joinClouds(clouds);
     }
 
     // wind is only updated according to neighbors, not including the actual cell
