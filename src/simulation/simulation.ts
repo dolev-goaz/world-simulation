@@ -1,7 +1,7 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell, SimulationFields } from "./cell";
-import { Direction, DirectionVectors, Directions, TDirection, addDirections, getDirectionFromVector } from "./direction";
+import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector } from "./direction";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 
@@ -67,15 +67,18 @@ export class Simulation {
         const newVector = affectingNeighbors
             .map((neighbor) => DirectionVectors[neighbor.currentGenerationFields.windDirection])
             .reduce((res, current) => {
-                return addDirections(res, current);
+                return addVectors(res, current);
             }, [0, 0]);
 
-        const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
-        const normalizedVector = newVector.map((force) => clamp(force, -1, 1)) as [number, number]; // normalize the wind
-
+        const normalizedVector = normalizeVector(newVector);
         cell.nextGenerationFields.windDirection = getDirectionFromVector(normalizedVector);
     }
 
+    /**
+     * Finds the neighbors which are having an effect on the current cell.
+     * Finds them by those cell's wind, using vector arithmetic.
+     * @returns 
+     */
     private getNeighborsAffectingWind(cell: Cell, neighbors: Neighbors) {
         const out: Cell[] = [];
         Directions.forEach((direction) => {
@@ -86,16 +89,21 @@ export class Simulation {
             const neighborDirectionVector = DirectionVectors[direction];
             const neighborWindDirectionVector = DirectionVectors[neighborInDirection.currentGenerationFields.windDirection];
 
-            const [dx, dy] = addDirections(neighborDirectionVector, neighborWindDirectionVector);
+            const sumVector = addVectors(neighborDirectionVector, neighborWindDirectionVector);
 
-            // if the forces are opposing- the neighbor's wind affects the cell
-            if (dx === 0 && dy === 0) {
+            // if the forces are opposing(sum is 0)- the neighbor's wind affects the cell
+            if (compareVectors(sumVector, DirectionVectors[Direction.None])) {
                 out.push(neighborInDirection);
             }
         });
         return out;
     }
 
+    /**
+     * Finds all the neighbors of the given cell.
+     * Neighbors are cyclic- meaning the most top-left cell has the most bottom-right
+     * cell as its neighbor
+     */
     private getNeighbors(cell: Cell) {
         return {
             [Direction.North]: this.getNeighbor(cell, DirectionVectors[Direction.North]),
@@ -109,7 +117,10 @@ export class Simulation {
         }
     }
 
-    private getNeighbor(cell: Cell, [dx, dy]: [number, number]) {
+    /**
+     * Gets a of a cell neighbor in the given direction vector.
+     */
+    private getNeighbor(cell: Cell, [dx, dy]: Vector2D) {
         // neighbors are found cyclically- leftmost cell has the rightmost cell as its neighbor
         // bottom-most cell has the top-most cell as its neighbor
         const xIndex = (cell.indexX + dx + config.CellsInRow) % config.CellsInRow;

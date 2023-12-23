@@ -12,6 +12,8 @@ export const Direction = {
     None: 'None',
 } as const;
 
+export type Vector2D = [number, number];
+
 export const DirectionVectors = {
     [Direction.North]: [0, -1],
     [Direction.South]: [0, 1],
@@ -24,7 +26,7 @@ export const DirectionVectors = {
     [Direction.SouthWest]: [-1, 1],
 
     [Direction.None]: [0, 0],
-} satisfies Record<TDirection, [number, number]>;
+} satisfies Record<TDirection, Vector2D>;
 
 export const DirectionArrows = {
     [Direction.North]: '↑',
@@ -57,14 +59,23 @@ export function randomDirection() {
     return Directions[randomIndex]
 }
 
-export function addDirections(vector1: [number, number], vector2: [number, number]): [number, number] {
+export function normalizeVector(vector: Vector2D): Vector2D {
+    const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
+    return vector.map((force) => clamp(force, -1, 1)) as Vector2D;
+}
+
+export function addVectors(vector1: Vector2D, vector2: Vector2D): Vector2D {
     return [
         vector1[0] + vector2[0],
         vector1[1] + vector2[1],
     ];
 }
 
-export function getDirectionFromVector(vector: [number, number]): TDirection {
+export function compareVectors(vector1: Vector2D, vector2: Vector2D): boolean {
+    return vector1[0] == vector2[0] && vector1[1] == vector2[1];
+}
+
+export function getDirectionFromVector(vector: Vector2D): TDirection {
     for (const [key, value] of Object.entries(DirectionVectors)) {
         if (value[0] == vector[0] && value[1] == vector[1]) {
             return key as TDirection; // object entries typescript issue
