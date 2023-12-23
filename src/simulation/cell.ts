@@ -4,8 +4,10 @@ import { DirectionArrows, TDirection } from "./direction";
 const cellBorderThickness = 1;
 
 export type CloudInfo = {
-    isRaining: boolean;
     lifeRemaining: number;
+
+    // generations remaining until it starts raining
+    timeToRain: number;
 }
 
 export type SimulationFields = {
@@ -83,7 +85,7 @@ function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
 function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
     const cloud = cell.currentGenerationFields.cloud;
     if (!cloud) return;
-    const color = cloud.isRaining ? 'gray' : 'lightgray';
+    const color = cloud.timeToRain <= 0 ? 'gray' : 'lightgray';
 
 
     const radX = 20;

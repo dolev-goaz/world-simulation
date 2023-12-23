@@ -83,9 +83,11 @@ export class Simulation {
             if (cell.area == Area.Sea) {
                 const randomChance = Math.random();
                 if (randomChance < config.Cloud.FormChance.Sea) {
+                    const lifespan = randomRange(config.Cloud.Lifespan.Min, config.Cloud.Lifespan.Max);
+                    const timeToRain = randomRange(1, lifespan - 1);
                     cloud = {
-                        isRaining: false,
-                        lifeRemaining: randomRange(config.Cloud.Lifespan.Min, config.Cloud.Lifespan.Max),
+                        timeToRain: timeToRain,
+                        lifeRemaining: lifespan,
                     };
                 }
             }
@@ -96,12 +98,12 @@ export class Simulation {
         // if one of the clouds are raining- all of them are raining
         clouds.sort((cloudA, cloudB) => cloudB.lifeRemaining - cloudA.lifeRemaining);
         // if any cloud is raning- the new cloud is rainy
-        const isRaining = clouds.findIndex((cloud) => cloud.isRaining) != -1;
+        const timeToRain = Math.min(...clouds.map((cloud) => cloud.timeToRain));
 
-        // lifespan is the average of the cloud's lifespan. -1 to accomodate the next generation
-        const lifespan = (clouds[0].lifeRemaining + clouds[clouds.length - 1].lifeRemaining) / 2 - 1;
+        // lifespan is the average of the cloud's lifespan.
+        const lifespan = (clouds[0].lifeRemaining + clouds[clouds.length - 1].lifeRemaining) / 2;
 
-        cell.nextGenerationFields.cloud = lifespan <= 0? undefined: { isRaining, lifeRemaining: lifespan };
+        cell.nextGenerationFields.cloud = lifespan <= 0 ? undefined : { timeToRain: timeToRain - 1, lifeRemaining: lifespan - 1 };
     }
 
     // wind is only updated according to neighbors, not including the actual cell
