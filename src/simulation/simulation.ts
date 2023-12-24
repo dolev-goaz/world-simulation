@@ -95,8 +95,8 @@ export class Simulation {
         const statisticsContainer = document.querySelector<HTMLDivElement>('#statistics-container')!;
         statisticsContainer.innerText =
             `Air Pollution
-            Mean: ${this.statistics.airPollution.mean.toFixed(1)}%
-            Standard Deviation: ${this.statistics.airPollution.stdDeviation.toFixed(1)}%
+            Mean: ${(100 * this.statistics.airPollution.mean).toFixed(1)}%
+            Standard Deviation: ${(100 * this.statistics.airPollution.stdDeviation).toFixed(1)}%
             
             Temperature
             Mean: ${this.statistics.temperature.mean.toFixed(1)}ºC
