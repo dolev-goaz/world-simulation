@@ -81,6 +81,21 @@ export class Simulation {
     private updateCellTemp(cell: Cell, _affectingNeighbors: Cell[]) {
         cell.nextGenerationFields.temperature = cell.currentGenerationFields.temperature;
         cell.nextGenerationFields.temperature += cell.currentGenerationFields.airPollution * config.PollutionHeatRatio;
+
+        const cellCloud = cell.currentGenerationFields.cloud;
+
+        if (!cellCloud) return;
+        // TODO: maybe account for affecting neighboring cell's temperature? wind carries heat?
+        if (cellCloud.timeToRain <= 0) {
+            const delta = cell.nextGenerationFields.temperature - config.RainTemperature;
+            cell.nextGenerationFields.temperature -= delta * config.RainTemperatureStepRatio;
+        } else  {
+            const delta = cell.nextGenerationFields.temperature - config.CloudShadeMinTemperature;
+            // in this simulation, clouds can cool an area but not warm it
+            if (delta > 0)  {
+                cell.nextGenerationFields.temperature -= delta * config.CloudTemperatureStepRatio;
+            }
+        }
     }
 
     private updateCellCloud(cell: Cell, affectingNeighbors: Cell[]) {

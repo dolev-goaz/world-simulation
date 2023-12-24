@@ -30,8 +30,14 @@
     "Land": 0.15,
     "Iceberg": 0.01
   },
-  "CityPollutionPerGeneration": 0.004,
-  "PollutionHeatRatio": 0.7,
+  "CityPollutionPerGeneration": 0.003,
+  "PollutionHeatRatio": 0.4,
 
+  "CloudShadeMinTemperature": 20,
+  "CloudTemperatureStepRatio": 0.1,
+
+  "RainTemperature": 14,
+  "RainTemperatureStepRatio": 0.1,
+  
   "Map1": "SSSSSSSSSSSSSSS\nSSSIIIIIIIIISSS\nSSSIIIIIIIIISSS\nSSSSSSSSSIIISSS\nSSFFCLSSSIIISSS\nSSFCCLSSSSSSSSS\nSSSSSSSSSSSSSSS\nSSSSLLLLLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLLLLLLLCCSS\nSSSSLCCCCCCCCSS\nSSSSLCCCCCCCCSS\nSSSSLLLLLLLLLSS\nSSSSSSSSSSSSSSS"
 }
