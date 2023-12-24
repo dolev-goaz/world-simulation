@@ -2,7 +2,7 @@ import { WorldMap } from "./worldMap";
 import config from "../config.json";
 import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
-import { TArea } from "./area";
+import { Area, TArea } from "./area";
 import { joinClouds, tryCreateCloud } from "./cloud";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
@@ -72,8 +72,10 @@ export class Simulation {
     }
 
     private updateAirPollution(cell: Cell, _affectingNeighbors: Cell[]) {
-        // temporary- maintain pollution
         cell.nextGenerationFields.airPollution = cell.currentGenerationFields.airPollution;
+        if (cell.area == Area.City) cell.nextGenerationFields.airPollution += config.CityPollutionPerGeneration;
+
+        cell.nextGenerationFields.airPollution = Math.min(cell.nextGenerationFields.airPollution, 1);
     }
 
     private updateCellTemp(cell: Cell, _affectingNeighbors: Cell[]) {
