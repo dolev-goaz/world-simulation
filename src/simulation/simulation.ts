@@ -126,6 +126,10 @@ export class Simulation {
         if (cell.currentGenerationFields.area == Area.Iceberg && cell.currentGenerationFields.temperature > 0) {
             cell.nextGenerationFields.area = Area.Sea;
         }
+        // if this happens you probably messed something up in the config file
+        if (cell.currentGenerationFields.area == Area.Sea && cell.currentGenerationFields.temperature > 100) {
+            cell.nextGenerationFields.area = Area.Land;
+        }
     }
 
     private updateAirPollution(cell: Cell, affectingNeighbors: Cell[]) {
