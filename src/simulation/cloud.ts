@@ -1,6 +1,6 @@
+import { randomRange } from "@/mathUtil";
 import config from "../config.json";
 import { Area, TArea } from "./area";
-import { randomRange } from "./helper";
 
 export type CloudInfo = {
     lifeRemaining: number;

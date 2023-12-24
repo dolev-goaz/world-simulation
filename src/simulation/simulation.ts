@@ -4,15 +4,27 @@ import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
 import { Area, TArea } from "./area";
 import { joinClouds, tryCreateCloud } from "./cloud";
-import { clamp } from "./helper";
+import { clamp, getMean, getStandardDeviation } from "@/mathUtil";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
+type Statistic = {
+    set: number[];
+    mean: number;
+    stdDeviation: number;
+}
+type Statistics = {
+    temperature: Statistic;
+    airPollution: Statistic;
+
+}
 
 export class Simulation {
     map: WorldMap;
     cellNeighbors: Map<Cell, Neighbors>; // this is by reference so its fine
 
     generation: number;
+
+    statistics: Statistics;
     private generationHeader: HTMLDivElement;
 
     constructor(areaMap: TArea[]) {
@@ -35,6 +47,8 @@ export class Simulation {
         this.map.cells.forEach((cell) => {
             this.cellNeighbors.set(cell, this.getNeighbors(cell));
         });
+
+        this.statistics = this.initializeStatistics();
     }
 
     private updateHeader() {
@@ -54,6 +68,39 @@ export class Simulation {
 
         ++this.generation;
         this.updateHeader();
+        this.calculateStatistics();
+    }
+
+    private initializeStatistics() {
+        const statisticsContainer = document.createElement('div');
+        statisticsContainer.id = 'statistics-container';
+        document.body.appendChild(statisticsContainer)
+        return {
+            airPollution: { set: [], stdDeviation: 0, mean: 0, },
+            temperature: { set: [], stdDeviation: 0, mean: 0, }
+        }
+    }
+
+    private calculateStatistics() {
+        const generationPollutions = this.map.cells.map((cell) => cell.currentGenerationFields.airPollution);
+        this.statistics.airPollution.set.push(getMean(generationPollutions));
+        this.statistics.airPollution.mean = getMean(this.statistics.airPollution.set);
+        this.statistics.airPollution.stdDeviation = getStandardDeviation(this.statistics.airPollution.set);
+
+        const generationTemperatures = this.map.cells.map((cell) => cell.currentGenerationFields.temperature);
+        this.statistics.temperature.set.push(getMean(generationTemperatures));
+        this.statistics.temperature.mean = getMean(this.statistics.temperature.set);
+        this.statistics.temperature.stdDeviation = getStandardDeviation(this.statistics.temperature.set);
+
+        const statisticsContainer = document.querySelector<HTMLDivElement>('#statistics-container')!;
+        statisticsContainer.innerText =
+            `Air Pollution
+            Mean: ${this.statistics.airPollution.mean.toFixed(1)}%
+            Standard Deviation: ${this.statistics.airPollution.stdDeviation.toFixed(1)}%
+            
+            Temperature
+            Mean: ${this.statistics.temperature.mean.toFixed(1)}ºC
+            Standard Deviation: ${this.statistics.temperature.stdDeviation.toFixed(1)}ºC`
     }
 
     private moveCellNextGen(cell: Cell) {
@@ -92,7 +139,7 @@ export class Simulation {
         const incomingPollution = affectingNeighbors
             .map((neighbor) => (neighbor.currentGenerationFields.airPollution - currentPollution) * config.PollutionByWindPercent)
             .reduce((sum, currentPollution) => sum + currentPollution, 0);
-        
+
         cell.nextGenerationFields.airPollution += incomingPollution;
 
         cell.nextGenerationFields.airPollution = clamp(cell.nextGenerationFields.airPollution, 0, 1);

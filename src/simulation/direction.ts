@@ -1,4 +1,4 @@
-import { clamp } from "./helper";
+import { clamp } from "@/mathUtil";
 
 export const Direction = {
     North: 'N',
