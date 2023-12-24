@@ -40,8 +40,12 @@ export class WorldMap {
         const y = Math.floor(event.offsetY / config.CellSize);
 
         const cell = this.cells[y * config.CellsInRow + x];
-        
-        this.cellTooltip.innerText = JSON.stringify(cell, null, '\t');
+
+        this.cellTooltip.innerText = JSON.stringify(
+            cell,
+            (_, val) => typeof val === 'number'? Number(val.toFixed(3)): val,
+            '\t'
+        );
         this.cellTooltip.hidden = false;
     }
     private onCanvasHoverEnd() {
