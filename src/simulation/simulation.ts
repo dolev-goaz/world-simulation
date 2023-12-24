@@ -79,8 +79,8 @@ export class Simulation {
     }
 
     private updateCellTemp(cell: Cell, _affectingNeighbors: Cell[]) {
-        // temporary- maintain temperature
         cell.nextGenerationFields.temperature = cell.currentGenerationFields.temperature;
+        cell.nextGenerationFields.temperature += cell.currentGenerationFields.airPollution * config.PollutionHeatRatio;
     }
 
     private updateCellCloud(cell: Cell, affectingNeighbors: Cell[]) {
