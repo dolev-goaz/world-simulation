@@ -1,19 +1,27 @@
 {
-    "CellSize": 50,
-    "CellsInRow": 15,
-    "CellsInColumn": 15,
+  "CellSize": 50,
+  "CellsInRow": 15,
+  "CellsInColumn": 15,
 
-    "StepCount": 365,
+  "StepCount": 365,
 
-    "Cloud": {
-        "Lifespan": {
-            "Min": 1,
-            "Max": 4
-        },
-        "FormChance": {
-            "Sea": 0.1
-        }
+  "Cloud": {
+    "Lifespan": {
+      "Min": 1,
+      "Max": 4
     },
+    "FormChance": {
+      "Sea": 0.1
+    }
+  },
 
-    "Map1": "SSSSSSSSSSSSSSS\nSSSIIIIIIIIISSS\nSSSIIIIIIIIISSS\nSSSSSSSSSIIISSS\nSSFFCLSSSIIISSS\nSSFCCLSSSSSSSSS\nSSSSSSSSSSSSSSS\nSSSSLLLLLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLLLLLLLCCSS\nSSSSLCCCCCCCCSS\nSSSSLCCCCCCCCSS\nSSSSLLLLLLLLLSS\nSSSSSSSSSSSSSSS"
+  "InitialTemperatures": {
+    "Forest": 20,
+    "City": 27,
+    "Sea": 19,
+    "Land": 23,
+    "Iceberg": -14
+  },
+
+  "Map1": "SSSSSSSSSSSSSSS\nSSSIIIIIIIIISSS\nSSSIIIIIIIIISSS\nSSSSSSSSSIIISSS\nSSFFCLSSSIIISSS\nSSFCCLSSSSSSSSS\nSSSSSSSSSSSSSSS\nSSSSLLLLLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLFFFLLLCCSS\nSSSSLLLLLLLCCSS\nSSSSLCCCCCCCCSS\nSSSSLCCCCCCCCSS\nSSSSLLLLLLLLLSS\nSSSSSSSSSSSSSSS"
 }

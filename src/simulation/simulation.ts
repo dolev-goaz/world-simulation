@@ -23,7 +23,8 @@ export class Simulation {
         const cells: Cell[] = areaMap.map((area, index) => {
             const indexX = index % config.CellsInColumn
             const indexY = (index - indexX) / config.CellsInRow;
-            return createCell(indexX, indexY, config.CellSize, randomDirection(), area)
+            const temperature = config.InitialTemperatures[area];
+            return createCell(indexX, indexY, config.CellSize, randomDirection(), area, temperature);
         })
         this.map = new WorldMap(cells);
 
@@ -64,6 +65,12 @@ export class Simulation {
 
         this.updateCellWind(cell, affectingNeighbors);
         this.updateCellCloud(cell, affectingNeighbors);
+        this.updateCellTemp(cell, affectingNeighbors);
+    }
+
+    private updateCellTemp(cell: Cell, _affectingNeighbors: Cell[]) {
+        // temporary- maintain temperature
+        cell.nextGenerationFields.temperature = cell.currentGenerationFields.temperature;
     }
 
     private updateCellCloud(cell: Cell, affectingNeighbors: Cell[]) {

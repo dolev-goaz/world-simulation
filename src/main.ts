@@ -1,8 +1,12 @@
 import { Simulation } from "./simulation/simulation";
 import config from "./config.json"
-import { TArea } from "./simulation/area";
+import { AreaShortReversed, TArea } from "./simulation/area";
 
-const areaMap = config.Map1.split('\n').map((line) => line.split('')).flat() as TArea[];
+const areaMap = config.Map1
+    .split('\n')
+    .map((line) => line.split(''))
+    .flat()
+    .map((areaShort) => AreaShortReversed[areaShort as keyof typeof AreaShortReversed]) as TArea[];
 const simulation = new Simulation(areaMap);
 
 function step() {
