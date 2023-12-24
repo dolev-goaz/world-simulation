@@ -4,6 +4,7 @@ import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
 import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
 import { Area, TArea } from "./area";
 import { joinClouds, tryCreateCloud } from "./cloud";
+import { clamp } from "./helper";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 
@@ -71,11 +72,21 @@ export class Simulation {
         this.updateAirPollution(cell, affectingNeighbors);
     }
 
-    private updateAirPollution(cell: Cell, _affectingNeighbors: Cell[]) {
-        cell.nextGenerationFields.airPollution = cell.currentGenerationFields.airPollution;
+    private updateAirPollution(cell: Cell, affectingNeighbors: Cell[]) {
+        const currentPollution = cell.currentGenerationFields.airPollution;
+
+        cell.nextGenerationFields.airPollution = currentPollution;
         if (cell.area == Area.City) cell.nextGenerationFields.airPollution += config.CityPollutionPerGeneration;
 
-        cell.nextGenerationFields.airPollution = Math.min(cell.nextGenerationFields.airPollution, 1);
+        // for each incoming pollution, subtract the current pollution to get the delta, then multiply by the wind factor.
+        // sum it all up to get the added pollution
+        const incomingPollution = affectingNeighbors
+            .map((neighbor) => (neighbor.currentGenerationFields.airPollution - currentPollution) * config.PollutionByWindPercent)
+            .reduce((sum, currentPollution) => sum + currentPollution, 0);
+        
+        cell.nextGenerationFields.airPollution += incomingPollution;
+
+        cell.nextGenerationFields.airPollution = clamp(cell.nextGenerationFields.airPollution, 0, 1);
     }
 
     private updateCellTemp(cell: Cell, _affectingNeighbors: Cell[]) {
@@ -89,10 +100,10 @@ export class Simulation {
         if (cellCloud.timeToRain <= 0) {
             const delta = cell.nextGenerationFields.temperature - config.RainTemperature;
             cell.nextGenerationFields.temperature -= delta * config.RainTemperatureStepRatio;
-        } else  {
+        } else {
             const delta = cell.nextGenerationFields.temperature - config.CloudShadeMinTemperature;
             // in this simulation, clouds can cool an area but not warm it
-            if (delta > 0)  {
+            if (delta > 0) {
                 cell.nextGenerationFields.temperature -= delta * config.CloudTemperatureStepRatio;
             }
         }

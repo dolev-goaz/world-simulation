@@ -32,6 +32,7 @@
   },
   "CityPollutionPerGeneration": 0.003,
   "PollutionHeatRatio": 0.4,
+  "PollutionByWindPercent": 0.05,
 
   "CloudShadeMinTemperature": 20,
   "CloudTemperatureStepRatio": 0.1,
