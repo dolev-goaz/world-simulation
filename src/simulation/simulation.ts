@@ -70,13 +70,22 @@ export class Simulation {
         this.updateCellCloud(cell, affectingNeighbors);
         this.updateCellTemp(cell, affectingNeighbors);
         this.updateAirPollution(cell, affectingNeighbors);
+        this.updateArea(cell, affectingNeighbors);
+    }
+
+    private updateArea(cell: Cell, _affectingNeighbors: Cell[]) {
+        cell.nextGenerationFields.area = cell.currentGenerationFields.area;
+
+        if (cell.currentGenerationFields.area == Area.Iceberg && cell.currentGenerationFields.temperature > 0) {
+            cell.nextGenerationFields.area = Area.Sea;
+        }
     }
 
     private updateAirPollution(cell: Cell, affectingNeighbors: Cell[]) {
         const currentPollution = cell.currentGenerationFields.airPollution;
 
         cell.nextGenerationFields.airPollution = currentPollution;
-        if (cell.area == Area.City) cell.nextGenerationFields.airPollution += config.CityPollutionPerGeneration;
+        if (cell.currentGenerationFields.area == Area.City) cell.nextGenerationFields.airPollution += config.CityPollutionPerGeneration;
 
         // for each incoming pollution, subtract the current pollution to get the delta, then multiply by the wind factor.
         // sum it all up to get the added pollution
@@ -121,7 +130,7 @@ export class Simulation {
         }
 
         if (clouds.length == 0) {
-            cell.nextGenerationFields.cloud = tryCreateCloud(cell.area);
+            cell.nextGenerationFields.cloud = tryCreateCloud(cell.currentGenerationFields.area);
             return;
         }
 

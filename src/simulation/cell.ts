@@ -18,6 +18,7 @@ export type SimulationFields = {
     cloud?: CloudInfo;
     temperature: number;
     airPollution: number;
+    area: TArea;
 }
 
 export type Cell = {
@@ -26,8 +27,6 @@ export type Cell = {
     drawX: number;
     drawY: number;
     drawSize: number;
-
-    area: TArea;
 
     currentGenerationFields: SimulationFields;
     nextGenerationFields: Partial<SimulationFields>;
@@ -49,12 +48,12 @@ export function createCell(
         indexY: indexY,
         drawX: indexX * drawSize,
         drawY: indexY * drawSize,
-        area: area,
         currentGenerationFields: {
             windDirection: windDirection,
             strokeColor: 'black',
             temperature: initialTemperature,
             airPollution: initialAirPollution,
+            area: area
         },
         nextGenerationFields: {},
     }
@@ -70,7 +69,7 @@ function DrawArea(ctx: CanvasRenderingContext2D, cell: Cell) {
     ctx.strokeStyle = cell.currentGenerationFields.strokeColor;
     ctx.strokeRect(cell.drawX, cell.drawY, cell.drawSize, cell.drawSize);
 
-    ctx.fillStyle = AreaColor[cell.area];
+    ctx.fillStyle = AreaColor[cell.currentGenerationFields.area];
     ctx.fillRect(
         cell.drawX + cellBorderThickness,
         cell.drawY + cellBorderThickness,
