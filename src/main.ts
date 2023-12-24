@@ -47,7 +47,7 @@ function createLoopControls() {
     const slider = document.createElement('input');
     slider.type = 'range';
     slider.min = '1';
-    slider.max = '5'
+    slider.max = '100'
     slider.step = '1';
     slider.value = initialSliderValue.toString();
     slider.title = `steps per second- ${slider.value}`;
