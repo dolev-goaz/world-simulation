@@ -15,6 +15,7 @@ export type SimulationFields = {
     strokeColor: string;
     cloud?: CloudInfo;
     temperature: number;
+    airPollution: number;
 }
 
 export type Cell = {
@@ -38,6 +39,7 @@ export function createCell(
     windDirection: TDirection,
     area: TArea,
     initialTemperature: number,
+    initialAirPollution: number,
 ): Cell {
     return {
         drawSize: drawSize,
@@ -49,7 +51,8 @@ export function createCell(
         currentGenerationFields: {
             windDirection: windDirection,
             strokeColor: 'black',
-            temperature: initialTemperature
+            temperature: initialTemperature,
+            airPollution: initialAirPollution,
         },
         nextGenerationFields: {},
     }
