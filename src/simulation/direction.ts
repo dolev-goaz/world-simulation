@@ -1,3 +1,5 @@
+import { clamp } from "./helper";
+
 export const Direction = {
     North: 'N',
     South: 'S',
@@ -60,7 +62,6 @@ export function randomDirection() {
 }
 
 export function normalizeVector(vector: Vector2D): Vector2D {
-    const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
     return vector.map((force) => clamp(force, -1, 1)) as Vector2D;
 }
 
