@@ -3,6 +3,8 @@ import { DirectionArrows, TDirection } from "./direction";
 
 const cellBorderThickness = 1;
 
+const images = new Map<string, HTMLImageElement>();
+
 export type CloudInfo = {
     lifeRemaining: number;
 
@@ -90,8 +92,8 @@ function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
     const cloud = cell.currentGenerationFields.cloud;
     if (!cloud) return;
     const raining = cloud.timeToRain <= 0;
-    const image = new Image();
-    image.src = raining ? 'cloud_rain.png' : 'cloud_normal.png';
+    const src = raining ? 'cloud_rain.png' : 'cloud_normal.png';
+    const image = getImage(src);
 
     const paddingX = 10;
     const width = cell.drawSize - 2 * paddingX;
@@ -100,4 +102,13 @@ function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
     const drawY = cell.drawY + cell.drawSize - height - 2; // padding-y = 2
 
     ctx.drawImage(image, 0, 0 , image.width, image.height, drawX, drawY, width, height)
+}
+
+function getImage(src: string) {
+    if (images.has(src)) return images.get(src)!;
+    const image = new Image();
+    image.src = src;
+    images.set(src, image);
+
+    return image;
 }
