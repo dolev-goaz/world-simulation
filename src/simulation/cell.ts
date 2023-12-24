@@ -89,15 +89,15 @@ function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
 function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
     const cloud = cell.currentGenerationFields.cloud;
     if (!cloud) return;
-    const color = cloud.timeToRain <= 0 ? 'gray' : 'lightgray';
+    const raining = cloud.timeToRain <= 0;
+    const image = new Image();
+    image.src = raining ? 'cloud_rain.png' : 'cloud_normal.png';
 
+    const paddingX = 10;
+    const width = cell.drawSize - 2 * paddingX;
+    const height = (image.height / image.width) * width; // scale height to the new width
+    const drawX = cell.drawX + paddingX;
+    const drawY = cell.drawY + cell.drawSize - height - 2; // padding-y = 2
 
-    const radX = 20;
-    const radY = 10;
-    const drawY = cell.drawY + cell.drawSize - radY - 4; // slight offset from below
-    const drawX = cell.drawX + cell.drawSize / 2; // center
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(drawX, drawY, radX, radY, 0, 0, 2 * Math.PI);
-    ctx.fill();
+    ctx.drawImage(image, 0, 0 , image.width, image.height, drawX, drawY, width, height)
 }
