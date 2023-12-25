@@ -40,14 +40,14 @@
   },
   "PollutionPerGeneration": {
     "Forest": -0.007,
-    "City": 0.003,
+    "City": 0.008,
     "Sea": 0,
     "Land": 0,
     "Iceberg": 0
   },
-  "PollutionHeatRatio": 0.45,
-  "PollutionByWindPercent": 0.09,
-  "PollutionByLandPercent": 0.018,
+  "PollutionHeatRatio": 0.7,
+  "PollutionByWindPercent": 0.3,
+  "PollutionByLandPercent": 0.09,
   "TemperatureByWindPercent": 0.01,
   "TemperatureByLandPercent": 0.002,
 
