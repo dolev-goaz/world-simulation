@@ -132,7 +132,7 @@ export class Simulation {
         }
     }
 
-    private updateAirPollution(cell: Cell, _neighbors: Neighbors, affectingNeighbors: Cell[]) {
+    private updateAirPollution(cell: Cell, neighbors: Neighbors, affectingNeighbors: Cell[]) {
         const currentPollution = cell.currentGenerationFields.airPollution;
 
         cell.nextGenerationFields.airPollution = currentPollution;
@@ -140,11 +140,16 @@ export class Simulation {
 
         // for each incoming pollution, subtract the current pollution to get the delta, then multiply by the wind factor.
         // sum it all up to get the added pollution
-        const incomingPollution = affectingNeighbors
+        const incomingPollutionWind = affectingNeighbors
             .map((neighbor) => (neighbor.currentGenerationFields.airPollution - currentPollution) * config.PollutionByWindPercent)
             .reduce((sum, currentPollution) => sum + currentPollution, 0);
+        cell.nextGenerationFields.airPollution += incomingPollutionWind;
 
-        cell.nextGenerationFields.airPollution += incomingPollution;
+        const neighborList = Object.values(neighbors);
+        const incomingPollutionLand = neighborList
+            .map((neighbor) => (neighbor.currentGenerationFields.airPollution - currentPollution) * config.PollutionByLandPercent)
+            .reduce((sum, currentPollution) => sum + currentPollution, 0);
+        cell.nextGenerationFields.airPollution += incomingPollutionLand;
 
         cell.nextGenerationFields.airPollution = clamp(cell.nextGenerationFields.airPollution, 0, 1);
     }

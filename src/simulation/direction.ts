@@ -28,7 +28,7 @@ export const DirectionVectors = {
     [Direction.SouthWest]: [-1, 1],
 
     [Direction.None]: [0, 0],
-} satisfies Record<TDirection, Vector2D>;
+} as Record<TDirection, Vector2D>;
 
 export const DirectionArrows = {
     [Direction.North]: '↑',

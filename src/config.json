@@ -33,6 +33,7 @@
   "CityPollutionPerGeneration": 0.003,
   "PollutionHeatRatio": 0.45,
   "PollutionByWindPercent": 0.09,
+  "PollutionByLandPercent": 0.018,
   "TemperatureByWindPercent": 0.01,
   "TemperatureByLandPercent": 0.002,
 
