@@ -1,10 +1,11 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
-import { Cell, CloudInfo, SimulationFields, WindInfo, createCell } from "./cell";
-import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, vectorToWindInfo, randomDirection, sumWinds } from "./direction";
+import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
+import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors } from "./direction";
 import { Area, TArea } from "./area";
 import { joinClouds, tryCreateCloud } from "./cloud";
-import { clamp, getMean, getStandardDeviation, randomRange } from "@/mathUtil";
+import { clamp, getMean, getStandardDeviation } from "@/mathUtil";
+import { combineWinds, createRandomWind } from "./wind";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 type Statistic = {
@@ -39,10 +40,7 @@ export class Simulation {
             const temperature = config.InitialTemperatures[area];
             const pollution = config.InitialPollution[area];
 
-            const wind: WindInfo = {
-                direction: randomDirection(),
-                force: randomRange(config.Wind.InitialForce.Min, config.Wind.InitialForce.Max),
-            }
+            const wind = createRandomWind();
             return createCell(indexX, indexY, config.CellSize, wind, area, temperature, pollution);
         })
         this.map = new WorldMap(cells);
@@ -224,13 +222,18 @@ export class Simulation {
         // if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
         // affecting neighbors must have wind
-        const newWindVector = sumWinds(affectingNeighbors.map((neighbor) => neighbor.currentGenerationFields.wind!));
-        const newWindInfo = vectorToWindInfo(newWindVector);
+        const newWindInfo = combineWinds(affectingNeighbors.map((neighbor) => neighbor.currentGenerationFields.wind!));
 
         // reduce wind force by 1 each generation. if its 1 or less, it will be 0 so the wind dies out.
         if (newWindInfo && newWindInfo.force > 1) {
             newWindInfo.force -= 1;
             cell.nextGenerationFields.wind = newWindInfo;
+        }
+
+        if (!cell.nextGenerationFields.wind) {
+            if (Math.random() < config.Wind.CreateChance) {
+                cell.nextGenerationFields.wind = createRandomWind();
+            }
         }
     }
 

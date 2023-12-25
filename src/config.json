@@ -32,9 +32,10 @@
   },
   "Wind": {
     "InitialForce": {
-      "Min": 0,
+      "Min": 1,
       "Max": 7
-    }
+    },
+    "CreateChance": 0.05
   },
   "CityPollutionPerGeneration": 0.003,
   "PollutionHeatRatio": 0.45,

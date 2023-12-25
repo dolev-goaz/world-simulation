@@ -1,5 +1,6 @@
 import { AreaColor, TArea } from "./area";
-import { DirectionArrows, TDirection } from "./direction";
+import { DirectionArrows } from "./direction";
+import { WindInfo } from "./wind";
 
 const cellBorderThickness = 1;
 
@@ -10,11 +11,6 @@ export type CloudInfo = {
 
     // generations remaining until it starts raining
     timeToRain: number;
-}
-
-export type WindInfo = {
-    direction: TDirection;
-    force: number;
 }
 
 export type SimulationFields = {
@@ -42,7 +38,7 @@ export function createCell(
     indexX: number,
     indexY: number,
     drawSize: number,
-    wind: WindInfo,
+    wind: WindInfo | undefined,
     area: TArea,
     initialTemperature: number,
     initialAirPollution: number,
