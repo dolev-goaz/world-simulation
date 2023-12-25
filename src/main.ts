@@ -2,7 +2,7 @@ import { Simulation } from "./simulation/simulation";
 import config from "./config.json"
 import { AreaShortReversed, TArea } from "./simulation/area";
 
-const areaMap = config.Map1
+const areaMap = config.Maps[0]
     .split('\n')
     .map((line) => line.split(''))
     .flat()
