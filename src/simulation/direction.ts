@@ -1,4 +1,5 @@
 import { clamp } from "@/mathUtil";
+import { WindInfo } from "./cell";
 
 export const Direction = {
     North: 'N',
@@ -61,8 +62,31 @@ export function randomDirection() {
     return Directions[randomIndex]
 }
 
-export function normalizeVector(vector: Vector2D): Vector2D {
-    return vector.map((force) => clamp(force, -1, 1)) as Vector2D;
+export function vectorToWindInfo(vector: Vector2D): WindInfo | undefined {
+    if (compareVectors(vector, DirectionVectors.None)) return undefined;
+
+    const absForces =
+        vector
+            .filter((directionalForce) => directionalForce != 0)
+            .map(Math.abs);
+
+    const minForce = Math.min(...absForces);
+
+
+    const normalizedVector = vector.map((force) => clamp(force, -1, 1)) as Vector2D;
+    return {
+        direction: getDirectionFromVector(normalizedVector),
+        force: minForce,
+    };
+}
+
+export function sumWinds(winds: WindInfo[]) {
+    return winds.reduce((total, wind) => {
+        const vector = DirectionVectors[wind.direction];
+        total[0] += vector[0] * wind.force;
+        total[1] += vector[1] * wind.force;
+        return total;
+    }, [0, 0] as Vector2D);
 }
 
 export function addVectors(vector1: Vector2D, vector2: Vector2D): Vector2D {

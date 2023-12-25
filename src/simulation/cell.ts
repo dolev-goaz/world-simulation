@@ -12,8 +12,13 @@ export type CloudInfo = {
     timeToRain: number;
 }
 
+export type WindInfo = {
+    direction: TDirection;
+    force: number;
+}
+
 export type SimulationFields = {
-    windDirection: TDirection;
+    wind?: WindInfo;
     strokeColor: string;
     cloud?: CloudInfo;
     temperature: number;
@@ -37,7 +42,7 @@ export function createCell(
     indexX: number,
     indexY: number,
     drawSize: number,
-    windDirection: TDirection,
+    wind: WindInfo,
     area: TArea,
     initialTemperature: number,
     initialAirPollution: number,
@@ -49,7 +54,7 @@ export function createCell(
         drawX: indexX * drawSize,
         drawY: indexY * drawSize,
         currentGenerationFields: {
-            windDirection: windDirection,
+            wind: wind,
             strokeColor: 'black',
             temperature: initialTemperature,
             airPollution: initialAirPollution,
@@ -79,7 +84,9 @@ function DrawArea(ctx: CanvasRenderingContext2D, cell: Cell) {
 }
 
 function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
-    const arrow = DirectionArrows[cell.currentGenerationFields.windDirection];
+    const wind = cell.currentGenerationFields.wind;
+    if (!wind) return;
+    const arrow = DirectionArrows[wind.direction];
 
     const fontSize = 16;
     ctx.font = `${fontSize}px serif`;

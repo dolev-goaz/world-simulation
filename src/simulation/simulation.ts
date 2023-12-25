@@ -1,10 +1,10 @@
 import { WorldMap } from "./worldMap";
 import config from "../config.json";
-import { Cell, CloudInfo, SimulationFields, createCell } from "./cell";
-import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, getDirectionFromVector, normalizeVector, randomDirection } from "./direction";
+import { Cell, CloudInfo, SimulationFields, WindInfo, createCell } from "./cell";
+import { Direction, DirectionVectors, Directions, TDirection, Vector2D, addVectors, compareVectors, vectorToWindInfo, randomDirection, sumWinds } from "./direction";
 import { Area, TArea } from "./area";
 import { joinClouds, tryCreateCloud } from "./cloud";
-import { clamp, getMean, getStandardDeviation } from "@/mathUtil";
+import { clamp, getMean, getStandardDeviation, randomRange } from "@/mathUtil";
 
 type Neighbors = Record<Exclude<TDirection, 'None'>, Cell>;
 type Statistic = {
@@ -36,10 +36,14 @@ export class Simulation {
         const cells: Cell[] = areaMap.map((area, index) => {
             const indexX = index % config.CellsInColumn
             const indexY = (index - indexX) / config.CellsInRow;
-            const windDirection = randomDirection();
             const temperature = config.InitialTemperatures[area];
             const pollution = config.InitialPollution[area];
-            return createCell(indexX, indexY, config.CellSize, windDirection, area, temperature, pollution);
+
+            const wind: WindInfo = {
+                direction: randomDirection(),
+                force: randomRange(config.Wind.InitialForce.Min, config.Wind.InitialForce.Max),
+            }
+            return createCell(indexX, indexY, config.CellSize, wind, area, temperature, pollution);
         })
         this.map = new WorldMap(cells);
 
@@ -163,19 +167,19 @@ export class Simulation {
         const incomingTemperatureWind = affectingNeighbors
             .map((neighbor) => (neighbor.currentGenerationFields.temperature - currentTemperature) * config.TemperatureByWindPercent)
             .reduce((sum, currentTemp) => sum + currentTemp, 0);
-        
+
         cell.nextGenerationFields.temperature += incomingTemperatureWind;
 
         // get spread temperature from neighbors
         const neighborList = Object.values(neighbors);
         const effectiveBorderNeighbors = cell.currentGenerationFields.area !== Area.Iceberg // ice is only affected by neighboring ice cells
             ? neighborList
-            : neighborList.filter((neighbor) => neighbor.currentGenerationFields.area === Area.Iceberg); 
+            : neighborList.filter((neighbor) => neighbor.currentGenerationFields.area === Area.Iceberg);
         const incomingTemperatureLand = effectiveBorderNeighbors
             .map((neighbor) => (neighbor.currentGenerationFields.temperature - currentTemperature) * config.TemperatureByLandPercent)
             .reduce((sum, currentTemp) => sum + currentTemp, 0);
         cell.nextGenerationFields.temperature += incomingTemperatureLand;
-        
+
         // subtract temperature spread to neighbors
         const averageNeighborTemp = getMean(effectiveBorderNeighbors.map((neighbor) => neighbor.currentGenerationFields.temperature));
         cell.nextGenerationFields.temperature -= (currentTemperature - averageNeighborTemp) * config.TemperatureByLandPercent;
@@ -201,8 +205,8 @@ export class Simulation {
             .map((neighbor) => neighbor.currentGenerationFields.cloud)
             .filter(Boolean) as CloudInfo[];
 
-        if (cell.currentGenerationFields.windDirection == Direction.None && cell.currentGenerationFields.cloud) {
-            // if the current cell has a cloud that won't move
+        if (!cell.currentGenerationFields.wind && cell.currentGenerationFields.cloud) {
+            // if the current cell has a cloud that won't move(no wind)
             clouds.push(cell.currentGenerationFields.cloud);
         }
 
@@ -219,14 +223,15 @@ export class Simulation {
         // this is for debugging mostly- show which cells are affected by wind
         // if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
-        const newVector = affectingNeighbors
-            .map((neighbor) => DirectionVectors[neighbor.currentGenerationFields.windDirection])
-            .reduce((res, current) => {
-                return addVectors(res, current);
-            }, [0, 0]);
+        // affecting neighbors must have wind
+        const newWindVector = sumWinds(affectingNeighbors.map((neighbor) => neighbor.currentGenerationFields.wind!));
+        const newWindInfo = vectorToWindInfo(newWindVector);
 
-        const normalizedVector = normalizeVector(newVector);
-        cell.nextGenerationFields.windDirection = getDirectionFromVector(normalizedVector);
+        // reduce wind force by 1 each generation. if its 1 or less, it will be 0 so the wind dies out.
+        if (newWindInfo && newWindInfo.force > 1) {
+            newWindInfo.force -= 1;
+            cell.nextGenerationFields.wind = newWindInfo;
+        }
     }
 
     /**
@@ -240,9 +245,9 @@ export class Simulation {
             const neighborInDirection = neighbors[direction];
             if (!neighborInDirection) return;
 
-            if (neighborInDirection.currentGenerationFields.windDirection === Direction.None) return;
+            if (!neighborInDirection.currentGenerationFields.wind) return;
             const neighborDirectionVector = DirectionVectors[direction];
-            const neighborWindDirectionVector = DirectionVectors[neighborInDirection.currentGenerationFields.windDirection];
+            const neighborWindDirectionVector = DirectionVectors[neighborInDirection.currentGenerationFields.wind.direction];
 
             const sumVector = addVectors(neighborDirectionVector, neighborWindDirectionVector);
 

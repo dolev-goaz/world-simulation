@@ -30,6 +30,12 @@
     "Land": 0.15,
     "Iceberg": 0.01
   },
+  "Wind": {
+    "InitialForce": {
+      "Min": 0,
+      "Max": 7
+    }
+  },
   "CityPollutionPerGeneration": 0.003,
   "PollutionHeatRatio": 0.45,
   "PollutionByWindPercent": 0.09,
