@@ -138,8 +138,8 @@ export class Simulation {
         const currentPollution = cell.currentGenerationFields.airPollution;
 
         cell.nextGenerationFields.airPollution = currentPollution;
-        if (cell.currentGenerationFields.area == Area.City) cell.nextGenerationFields.airPollution += config.CityPollutionPerGeneration;
-
+        cell.nextGenerationFields.airPollution += config.PollutionPerGeneration[cell.currentGenerationFields.area];
+        
         // for each incoming pollution, subtract the current pollution to get the delta, then multiply by the wind factor.
         // sum it all up to get the added pollution
         const incomingPollutionWind = affectingNeighbors

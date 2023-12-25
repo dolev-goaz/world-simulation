@@ -37,7 +37,13 @@
     },
     "CreateChance": 0.05
   },
-  "CityPollutionPerGeneration": 0.003,
+  "PollutionPerGeneration": {
+    "Forest": -0.007,
+    "City": 0.003,
+    "Sea": 0,
+    "Land": 0,
+    "Iceberg": 0
+  },
   "PollutionHeatRatio": 0.45,
   "PollutionByWindPercent": 0.09,
   "PollutionByLandPercent": 0.018,
