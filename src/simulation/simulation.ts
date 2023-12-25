@@ -139,7 +139,7 @@ export class Simulation {
 
         cell.nextGenerationFields.airPollution = currentPollution;
         cell.nextGenerationFields.airPollution += config.PollutionPerGeneration[cell.currentGenerationFields.area];
-        
+
         // for each incoming pollution, subtract the current pollution to get the delta, then multiply by the wind factor.
         // sum it all up to get the added pollution
         const incomingPollutionWind = affectingNeighbors
@@ -217,7 +217,7 @@ export class Simulation {
     }
 
     // wind is only updated according to neighbors, not including the actual cell
-    private updateCellWind(cell: Cell, _neighbors: Neighbors, affectingNeighbors: Cell[]) {
+    private updateCellWind(cell: Cell, neighbors: Neighbors, affectingNeighbors: Cell[]) {
         // this is for debugging mostly- show which cells are affected by wind
         // if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
@@ -232,9 +232,20 @@ export class Simulation {
 
         if (!cell.nextGenerationFields.wind) {
             if (Math.random() < config.Wind.CreateChance) {
-                cell.nextGenerationFields.wind = createRandomWind();
+                const direction = this.findWarmestNeighbor(neighbors)[0];
+                cell.nextGenerationFields.wind = createRandomWind(direction);
             }
         }
+    }
+
+    private findWarmestNeighbor(neighbors: Neighbors) {
+        const pairs = Object.entries(neighbors) as Array<[TDirection, Cell]>;
+        return pairs
+            .reduce(([warmestDirection, warmestCell], [currDirection, currCell]) => {
+                if (currCell.currentGenerationFields.temperature > warmestCell.currentGenerationFields.temperature)
+                    return [currDirection, currCell];
+                return [warmestDirection, warmestCell];
+            })
     }
 
     /**

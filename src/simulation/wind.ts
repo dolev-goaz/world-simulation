@@ -12,12 +12,14 @@ export function combineWinds(winds: WindInfo[]): WindInfo | undefined {
     return vectorToWindInfo(outVector);
 }
 
-export function createRandomWind(): WindInfo | undefined {
+export function createRandomWind(direction?: TDirection): WindInfo | undefined {
     const force = randomRange(config.Wind.InitialForce.Min, config.Wind.InitialForce.Max);
     if (force == 0) return undefined;
 
+    const windDirection = direction ?? randomDirection();
+
     return {
-        direction: randomDirection(),
+        direction: windDirection,
         force: force
     }
 }
