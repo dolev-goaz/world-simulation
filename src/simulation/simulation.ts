@@ -113,14 +113,14 @@ export class Simulation {
         if (!neighbors) throw new Error("Invalid cell");
         const affectingNeighbors = this.getNeighborsAffectingWind(cell, neighbors);
 
-        this.updateCellWind(cell, affectingNeighbors);
-        this.updateCellCloud(cell, affectingNeighbors);
-        this.updateCellTemp(cell, affectingNeighbors);
-        this.updateAirPollution(cell, affectingNeighbors);
-        this.updateArea(cell, affectingNeighbors);
+        this.updateCellWind(cell, neighbors, affectingNeighbors);
+        this.updateCellCloud(cell, neighbors, affectingNeighbors);
+        this.updateCellTemp(cell, neighbors, affectingNeighbors);
+        this.updateAirPollution(cell, neighbors, affectingNeighbors);
+        this.updateArea(cell, neighbors, affectingNeighbors);
     }
 
-    private updateArea(cell: Cell, _affectingNeighbors: Cell[]) {
+    private updateArea(cell: Cell, _neighbors: Neighbors, _affectingNeighbors: Cell[]) {
         cell.nextGenerationFields.area = cell.currentGenerationFields.area;
 
         if (cell.currentGenerationFields.area == Area.Iceberg && cell.currentGenerationFields.temperature > 0) {
@@ -132,7 +132,7 @@ export class Simulation {
         }
     }
 
-    private updateAirPollution(cell: Cell, affectingNeighbors: Cell[]) {
+    private updateAirPollution(cell: Cell, _neighbors: Neighbors, affectingNeighbors: Cell[]) {
         const currentPollution = cell.currentGenerationFields.airPollution;
 
         cell.nextGenerationFields.airPollution = currentPollution;
@@ -149,12 +149,33 @@ export class Simulation {
         cell.nextGenerationFields.airPollution = clamp(cell.nextGenerationFields.airPollution, 0, 1);
     }
 
-    private updateCellTemp(cell: Cell, _affectingNeighbors: Cell[]) {
-        cell.nextGenerationFields.temperature = cell.currentGenerationFields.temperature;
+    private updateCellTemp(cell: Cell, neighbors: Neighbors, affectingNeighbors: Cell[]) {
+        const currentTemperature = cell.currentGenerationFields.temperature;
+        cell.nextGenerationFields.temperature = currentTemperature;
         cell.nextGenerationFields.temperature += cell.currentGenerationFields.airPollution * config.PollutionHeatRatio;
 
-        const cellCloud = cell.currentGenerationFields.cloud;
+        // change temperature from neighbors with wind
+        const incomingTemperatureWind = affectingNeighbors
+            .map((neighbor) => (neighbor.currentGenerationFields.temperature - currentTemperature) * config.TemperatureByWindPercent)
+            .reduce((sum, currentTemp) => sum + currentTemp, 0);
+        
+        cell.nextGenerationFields.temperature += incomingTemperatureWind;
 
+        // get spread temperature from neighbors
+        const neighborList = Object.values(neighbors);
+        const effectiveBorderNeighbors = cell.currentGenerationFields.area !== Area.Iceberg // ice is only affected by neighboring ice cells
+            ? neighborList
+            : neighborList.filter((neighbor) => neighbor.currentGenerationFields.area === Area.Iceberg); 
+        const incomingTemperatureLand = effectiveBorderNeighbors
+            .map((neighbor) => (neighbor.currentGenerationFields.temperature - currentTemperature) * config.TemperatureByLandPercent)
+            .reduce((sum, currentTemp) => sum + currentTemp, 0);
+        cell.nextGenerationFields.temperature += incomingTemperatureLand;
+        
+        // subtract temperature spread to neighbors
+        const averageNeighborTemp = getMean(effectiveBorderNeighbors.map((neighbor) => neighbor.currentGenerationFields.temperature));
+        cell.nextGenerationFields.temperature -= (currentTemperature - averageNeighborTemp) * config.TemperatureByLandPercent;
+
+        const cellCloud = cell.currentGenerationFields.cloud;
         if (!cellCloud) return;
         // TODO: maybe account for affecting neighboring cell's temperature? wind carries heat?
         if (cellCloud.timeToRain <= 0) {
@@ -169,7 +190,7 @@ export class Simulation {
         }
     }
 
-    private updateCellCloud(cell: Cell, affectingNeighbors: Cell[]) {
+    private updateCellCloud(cell: Cell, _neighbors: Neighbors, affectingNeighbors: Cell[]) {
         // Get clouds moving towards current cell
         const clouds = affectingNeighbors
             .map((neighbor) => neighbor.currentGenerationFields.cloud)
@@ -189,7 +210,7 @@ export class Simulation {
     }
 
     // wind is only updated according to neighbors, not including the actual cell
-    private updateCellWind(cell: Cell, affectingNeighbors: Cell[]) {
+    private updateCellWind(cell: Cell, _neighbors: Neighbors, affectingNeighbors: Cell[]) {
         // this is for debugging mostly- show which cells are affected by wind
         // if (affectingNeighbors.length != 0) cell.currentGenerationFields.strokeColor = 'red';
 
