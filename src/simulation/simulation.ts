@@ -76,6 +76,7 @@ export class Simulation {
     private initializeStatistics() {
         const statisticsContainer = document.createElement('div');
         statisticsContainer.id = 'statistics-container';
+        statisticsContainer.style.whiteSpace = 'pre';
         document.body.appendChild(statisticsContainer)
         return {
             airPollution: { set: [], stdDeviation: 0, mean: 0, },
@@ -85,24 +86,41 @@ export class Simulation {
 
     private calculateStatistics() {
         const generationPollutions = this.map.cells.map((cell) => cell.currentGenerationFields.airPollution);
-        this.statistics.airPollution.set.push(getMean(generationPollutions));
-        this.statistics.airPollution.mean = getMean(this.statistics.airPollution.set);
-        this.statistics.airPollution.stdDeviation = getStandardDeviation(this.statistics.airPollution.set);
+        const pollutionStatistic = this.statistics.airPollution;
+        pollutionStatistic.set.push(getMean(generationPollutions));
+        pollutionStatistic.mean = getMean(pollutionStatistic.set);
+        pollutionStatistic.stdDeviation = getStandardDeviation(pollutionStatistic.set);
 
         const generationTemperatures = this.map.cells.map((cell) => cell.currentGenerationFields.temperature);
-        this.statistics.temperature.set.push(getMean(generationTemperatures));
-        this.statistics.temperature.mean = getMean(this.statistics.temperature.set);
-        this.statistics.temperature.stdDeviation = getStandardDeviation(this.statistics.temperature.set);
+        const temperatureStatistic = this.statistics.temperature;
+        temperatureStatistic.set.push(getMean(generationTemperatures));
+        temperatureStatistic.mean = getMean(temperatureStatistic.set);
+        temperatureStatistic.stdDeviation = getStandardDeviation(temperatureStatistic.set);
+
+        // generation fields
+        const generationPollutionMean = pollutionStatistic.set[pollutionStatistic.set.length - 1];
+        const generationPollutionStdDeviation = getStandardDeviation(generationPollutions);
+
+        const generationTemperatureMean = temperatureStatistic.set[temperatureStatistic.set.length - 1];
+        const generationTemperatureStdDeviation = getStandardDeviation(generationTemperatures);
+
+        const pollutionTexts = [
+            `Generation Mean: ${(100 * generationPollutionMean).toFixed(1)}%`,
+            `Generation Standard Deviation: ${(100 * generationPollutionStdDeviation).toFixed(1)}%`,
+            `All Generations Mean: ${(100 * pollutionStatistic.mean).toFixed(1)}%`,
+            `All Generations Standard Deviation: ${(100 * pollutionStatistic.stdDeviation).toFixed(1)}%`
+        ];
+        const temperatureTexts = [
+            `Generation Mean: ${generationTemperatureMean.toFixed(1)}ºC`,
+            `Generation Standard Deviation: ${generationTemperatureStdDeviation.toFixed(1)}ºC`,
+            `All Generations Mean: ${temperatureStatistic.mean.toFixed(1)}ºC`,
+            `All Generations Standard Deviation: ${temperatureStatistic.stdDeviation.toFixed(1)}ºC`,
+        ];
+        const pollutionText = pollutionTexts.map((text) => `\t${text}`).join('\n');
+        const temperatureText = temperatureTexts.map((text) => `\t${text}`).join('\n');
 
         const statisticsContainer = document.querySelector<HTMLDivElement>('#statistics-container')!;
-        statisticsContainer.innerText =
-            `Air Pollution
-            Mean: ${(100 * this.statistics.airPollution.mean).toFixed(1)}%
-            Standard Deviation: ${(100 * this.statistics.airPollution.stdDeviation).toFixed(1)}%
-            
-            Temperature
-            Mean: ${this.statistics.temperature.mean.toFixed(1)}ºC
-            Standard Deviation: ${this.statistics.temperature.stdDeviation.toFixed(1)}ºC`
+        statisticsContainer.innerText = `AirPollution:\n${pollutionText}\nTemperature:\n${temperatureText}`;
     }
 
     private moveCellNextGen(cell: Cell) {
