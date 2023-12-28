@@ -61,15 +61,23 @@ function createLoopControls(stepMethod: fn) {
     };
 
     autoYear.onclick = async () => {
+        if(autoYear.hasAttribute('data-active')) {
+            autoYear.removeAttribute('data-active');
+            autoYear.innerText = '1 Year';
+            return;
+        }
         checkbox.disabled = true;
-        autoYear.disabled = true;
+        autoYear.setAttribute('data-active', '');
+        autoYear.innerText = 'Stop';
         for (let day = 0; day < 365; ++day) {
+            if (!autoYear.hasAttribute('data-active')) break;
             timePerFrame = 1000 / Number(slider.value);
             await sleep(timePerFrame)
             stepMethod();
 
         }
-        autoYear.disabled = false;
+        autoYear.removeAttribute('data-active');
+        autoYear.innerText = '1 Year';
         checkbox.disabled = false;
     }
 }
