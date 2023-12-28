@@ -12,7 +12,7 @@ function step() {
   simulation.map.draw();
 }
 function exportSimulationData() {
-  writeSpreadSheet('export_simulation');
+  writeSpreadSheet(simulation.statistics, 'export_simulation');
 }
 setupControls({
   spreadSheetExport: exportSimulationData,

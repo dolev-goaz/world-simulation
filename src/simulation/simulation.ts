@@ -13,10 +13,9 @@ type Statistic = {
     mean: number;
     stdDeviation: number;
 }
-type Statistics = {
+export type Statistics = {
     temperature: Statistic;
     airPollution: Statistic;
-
 }
 
 export class Simulation {
