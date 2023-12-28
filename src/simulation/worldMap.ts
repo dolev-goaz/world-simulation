@@ -6,7 +6,7 @@ export class WorldMap {
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private cellTooltip: HTMLElement;
+    private cellTooltip: HTMLParagraphElement;
 
     constructor(cells: Cell[] = []) {
         const htmlElements = this.initializeMapHTML();
@@ -44,17 +44,17 @@ export class WorldMap {
         const y = Math.floor(event.offsetY / config.CellSize);
 
         const cell = this.cells[y * config.CellsInRow + x];
-
-        this.cellTooltip.innerText = JSON.stringify(
+        const debugData = JSON.stringify(
             cell,
             (_, val) => typeof val === 'number'? Number(val.toFixed(3)): val,
             '\t'
         );
+        const contentHolder = this.cellTooltip.querySelector<HTMLSpanElement>("span#tooltip-data")!;
+        contentHolder.innerText = debugData;
         this.cellTooltip.hidden = false;
     }
     private onCanvasHoverEnd() {
         this.cellTooltip.hidden = true;
-        this.cellTooltip.innerText = '';
     }
 
     private initializeMapHTML() {
@@ -67,7 +67,7 @@ export class WorldMap {
         canvas.onmousemove = this.onCanvasHover.bind(this);
         canvas.onmouseleave = this.onCanvasHoverEnd.bind(this);
 
-        const cellTooltip = document.querySelector<HTMLParagraphElement>('p#tooltip');
+        const cellTooltip = document.querySelector<HTMLParagraphElement>('#tooltip');
         if (!cellTooltip) return;
 
         return {

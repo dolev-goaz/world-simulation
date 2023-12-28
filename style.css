@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@1,500;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@1,500;1,900&display=swap");
 * {
-    font-family: sans-serif;
+  font-family: sans-serif;
 }
 body {
   height: 100vh;
@@ -18,7 +18,17 @@ body {
   top: 0;
   right: 2rem;
   width: 15rem;
+}
+#tooltip > #tooltip-data {
   white-space: pre;
+}
+#tooltip > #tooltip-header {
+  font-weight: bold;
+  text-align: center;
+  text-decoration: underline;
+}
+#tooltip > * {
+  display: block;
 }
 .controls {
   display: flex;
@@ -55,16 +65,16 @@ header#generation-header {
   text-align: center;
 }
 .auto-step {
-    background-color: darkgray;
-    border-radius: 100vmax;
-    padding-inline: 1rem;
-    padding-block: 0.125rem;
+  background-color: darkgray;
+  border-radius: 100vmax;
+  padding-inline: 1rem;
+  padding-block: 0.125rem;
 }
 .auto-step > header {
-    text-align: center;
+  text-align: center;
 }
 .auto-step-controls {
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
 }
