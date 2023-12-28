@@ -85,10 +85,10 @@ function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
     if (!wind) return;
     const arrow = DirectionArrows[wind.direction];
 
-    const fontSize = 10;
+    const fontSize = cell.drawSize / 4;
     ctx.font = `${fontSize}px serif`;
     ctx.strokeStyle = 'black';
-    ctx.strokeText(arrow, cell.drawX + 5, cell.drawY + 2 + fontSize, fontSize);
+    ctx.strokeText(arrow, cell.drawX + 5, cell.drawY + fontSize, fontSize);
 }
 
 function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
