@@ -10,6 +10,10 @@ export class WorldMap {
 
     constructor(cells: Cell[] = []) {
         const htmlElements = this.initializeMapHTML();
+        if (!htmlElements) {
+            alert("Error");
+            throw new Error("Error");
+        }
         this.canvas = htmlElements.canvas;
         this.cellTooltip = htmlElements.cellTooltip;
 
@@ -54,23 +58,17 @@ export class WorldMap {
     }
 
     private initializeMapHTML() {
-        const canvasParent = document.createElement('div');
-
-        const canvas = document.createElement("canvas");
+        const canvasParent = document.querySelector<HTMLDivElement>("#simulation-map")
+        if (!canvasParent) return;
+        const canvas = canvasParent.querySelector<HTMLCanvasElement>("canvas");
+        if (!canvas) return;
         canvas.width = config.CellSize * config.CellsInColumn;
         canvas.height = config.CellSize * config.CellsInRow;
         canvas.onmousemove = this.onCanvasHover.bind(this);
         canvas.onmouseleave = this.onCanvasHoverEnd.bind(this);
-        canvasParent.appendChild(canvas);
 
-        const cellTooltip = document.createElement("p");
-        cellTooltip.classList.add('tooltip');
-        canvasParent.appendChild(cellTooltip);
-
-        canvasParent.classList.add('canvas-container');
-
-        document.body.appendChild(canvasParent);
-
+        const cellTooltip = document.querySelector<HTMLParagraphElement>('p#tooltip');
+        if (!cellTooltip) return;
 
         return {
             canvas,

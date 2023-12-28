@@ -14,8 +14,6 @@ async function writeSpreadSheet() {
   FileSaver.saveAs(new Blob([buffer]), "simulation_export.xlsx");
 }
 
-writeSpreadSheet();
-
 const areaMap = config.Maps[0]
   .split("\n")
   .map((line) => line.split(""))
@@ -24,28 +22,35 @@ const areaMap = config.Maps[0]
     (areaShort) =>
       AreaShortReversed[areaShort as keyof typeof AreaShortReversed]
   ) as TArea[];
+setupControls();
 const simulation = new Simulation(areaMap);
 
 function step() {
-  // // use this to show next step info
-  // simulation.calcNextGen();
-  // simulation.map.draw();
-  // simulation.moveNextGen();
   simulation.calcNextGen();
   simulation.moveNextGen();
   simulation.map.draw();
 }
 
-setupControls();
 simulation.map.draw();
+
+function setupControls() {
+  createExport();
+  createLoopControls();
+  createStepButton();
+}
+
+function createExport() {
+  const button = document.querySelector<HTMLButtonElement>('button#export-excel')
+  if (!button) return;
+  button.onclick = writeSpreadSheet;
+  return button;
+}
 
 function createLoopControls() {
   const initialSliderValue = 2;
   let timePerFrame = 1000 / initialSliderValue;
 
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.title = "auto step";
+  const checkbox = document.querySelector<HTMLInputElement>("input[type=checkbox]#auto-step")!;
   let loopInterval: NodeJS.Timeout;
   checkbox.oninput = () => {
     if (!checkbox.checked) return;
@@ -60,8 +65,7 @@ function createLoopControls() {
     }, timePerFrame);
   };
 
-  const slider = document.createElement("input");
-  slider.type = "range";
+  const slider = document.querySelector<HTMLInputElement>("input[type=range]#auto-step-speed")!;
   slider.min = "1";
   slider.max = "100";
   slider.step = "1";
@@ -84,23 +88,7 @@ function createLoopControls() {
 }
 
 function createStepButton() {
-  const button = document.createElement("button");
-  button.innerText = "Step";
+  const button = document.querySelector<HTMLInputElement>("button[type=button]#step")!;
   button.onclick = step;
   return button;
-}
-
-function setupControls() {
-  const stepButton = createStepButton();
-  const loopControls = createLoopControls();
-
-  const loopContainer = document.createElement("div");
-  loopContainer.appendChild(loopControls.checkbox);
-  loopContainer.appendChild(loopControls.slider);
-
-  const controlsContainer = document.createElement("div");
-  controlsContainer.classList.add("controls");
-  controlsContainer.appendChild(stepButton);
-  controlsContainer.appendChild(loopContainer);
-  document.body.appendChild(controlsContainer);
 }

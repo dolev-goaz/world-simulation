@@ -26,12 +26,11 @@ export class Simulation {
     generation: number;
 
     statistics: Statistics;
-    private generationHeader: HTMLDivElement;
+    private generationHeader: HTMLElement;
 
     constructor(areaMap: TArea[]) {
         this.generation = 0;
-        this.generationHeader = document.createElement('div');
-        document.body.appendChild(this.generationHeader);
+        this.generationHeader = document.querySelector("header#generation-header")!;
         this.updateHeader();
 
         const cells: Cell[] = areaMap.map((area, index) => {
@@ -54,8 +53,6 @@ export class Simulation {
     }
 
     private updateHeader() {
-        const maxLength = 'Generation '.length + 4; // 4 digit generations
-        this.generationHeader.style.width = `${maxLength}ch`
         this.generationHeader.innerText = `Generation ${this.generation}`;
     }
 
@@ -74,10 +71,9 @@ export class Simulation {
     }
 
     private initializeStatistics() {
-        const statisticsContainer = document.createElement('div');
-        statisticsContainer.id = 'statistics-container';
+
+        const statisticsContainer = document.querySelector<HTMLParagraphElement>('p#statistics')!;
         statisticsContainer.style.whiteSpace = 'pre';
-        document.body.appendChild(statisticsContainer)
         return {
             airPollution: { set: [], stdDeviation: 0, mean: 0, },
             temperature: { set: [], stdDeviation: 0, mean: 0, }
@@ -119,7 +115,7 @@ export class Simulation {
         const pollutionText = pollutionTexts.map((text) => `\t${text}`).join('\n');
         const temperatureText = temperatureTexts.map((text) => `\t${text}`).join('\n');
 
-        const statisticsContainer = document.querySelector<HTMLDivElement>('#statistics-container')!;
+        const statisticsContainer = document.querySelector<HTMLDivElement>('p#statistics')!;
         statisticsContainer.innerText = `AirPollution:\n${pollutionText}\nTemperature:\n${temperatureText}`;
     }
 

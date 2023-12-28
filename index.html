@@ -3,34 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + TS</title>
-    <style>
-      body {
-        display: flex;
-        align-items: center;
-      }
-      .canvas-container {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-      .tooltip {
-        position: absolute;
-        top: 0;
-        right: 2rem;
-        width: 15rem;
-        white-space: pre;
-      }
-      .controls {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-    </style>
   </head>
   <body>
+    <nav>
+      <button type="button" id="export-excel">Export To Excel</button>
+    </nav>
+    <main>
+      <div id="simulation-map">
+        <header id="generation-header"></header>
+        <canvas></canvas>
+        <p id="tooltip"></p>
+      </div>
+      <p id="statistics"></p>
+    </main>
+    <footer>
+      <button type="button" id="step" title="step">Step</button>
+      <div class="auto-step">
+        <input id="auto-step" type="checkbox" title="auto step">
+        <input id="auto-step-speed" type="range" title="auto step speed">
+      </div>
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
