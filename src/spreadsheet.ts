@@ -17,7 +17,18 @@ const headerInfo = {
         width: 14,
         style: { numFmt: '0.0000'}
     },
+    temperatureNormalized: {
+        header: 'Temperature Normalized',
+        width: 25,
+        style: { numFmt: '0.0000'}
+    },
+    airPollutionNormalized: {
+        header: 'Air Pollution Normalized',
+        width: 25,
+        style: { numFmt: '0.0000'}
+    },
 };
+
 const headerKeys = Object.keys(headerInfo) as Array<keyof typeof headerInfo>;
 
 export async function writeSpreadSheet(statistics: Statistics, filename: string = 'export') {
@@ -27,17 +38,40 @@ export async function writeSpreadSheet(statistics: Statistics, filename: string 
         key,
         ...headerInfo[key]
     }));
-    const rows = combineStatistics(statistics);
+    const rows = statisticsToData(statistics);
     rows.forEach((row) =>worksheet.addRow(row));
 
     const buffer = await workbook.xlsx.writeBuffer();
     FileSaver.saveAs(new Blob([buffer]), `${filename}.xlsx`);
 }
 
-function combineStatistics(statistics: Statistics) {
-    const dataSets = Object.fromEntries(
+function statisticsToData(statistics: Statistics): Record<string, number>[] {
+    const statisticsSets = Object.fromEntries(
         Object.entries(statistics).map(([key, value]) => ([key, value.set]))
     );
+    const normalizedSets = normalizedStatistics(statistics);
+
+    const data = {
+        ...statisticsSets,
+        ...normalizedSets
+    }
+
+    return combineStatistics(data);
+}
+
+function normalizedStatistics(statistics: Statistics) {
+    const out: Record<string, number[]> = {};
+    const entries = Object.entries(statistics);
+    entries.forEach(([key, value]) => {
+        const newKey = `${key}Normalized`;
+        const newSet = value.set.map((setItem) => (setItem - value.mean) / value.stdDeviation);
+        out[newKey] = newSet;
+    });
+
+    return out;
+}
+
+function combineStatistics(dataSets: Record<string, number[]>) {
     const keys = Object.keys(dataSets);
     
     const setLength = Math.min(...Object.values(dataSets).map((set) => set.length));
