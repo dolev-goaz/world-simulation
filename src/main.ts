@@ -43,7 +43,6 @@ function createExport() {
   const button = document.querySelector<HTMLButtonElement>('button#export-excel')
   if (!button) return;
   button.onclick = writeSpreadSheet;
-  return button;
 }
 
 function createLoopControls() {
@@ -51,8 +50,13 @@ function createLoopControls() {
   let timePerFrame = 1000 / initialSliderValue;
 
   const checkbox = document.querySelector<HTMLInputElement>("input[type=checkbox]#auto-step")!;
+  const autoYear = document.querySelector<HTMLButtonElement>('button#auto-step-year')!;  
+  const slider = document.querySelector<HTMLInputElement>("input[type=range]#auto-step-speed")!;
+  const sliderLabel = document.querySelector<HTMLLabelElement>('[for=auto-step-speed]')!;
+
   let loopInterval: NodeJS.Timeout;
   checkbox.oninput = () => {
+    autoYear.disabled = checkbox.checked;
     if (!checkbox.checked) return;
 
     step();
@@ -64,9 +68,6 @@ function createLoopControls() {
       step();
     }, timePerFrame);
   };
-
-  const slider = document.querySelector<HTMLInputElement>("input[type=range]#auto-step-speed")!;
-  const sliderLabel = document.querySelector<HTMLLabelElement>('[for=auto-step-speed]')!;
   slider.min = "1";
   slider.max = "100";
   slider.step = "1";
@@ -87,11 +88,26 @@ function createLoopControls() {
       step();
     }, timePerFrame);
   };
-  return { slider, checkbox };
+
+  autoYear.onclick = async () => {
+    checkbox.disabled = true;
+    autoYear.disabled = true;
+    for (let day = 0; day < 365; ++day) {
+      timePerFrame = 1000 / Number(slider.value);
+      await sleep(timePerFrame)
+      step();
+      
+    }
+    autoYear.disabled = false;
+    checkbox.disabled = false;
+  }
 }
 
 function createStepButton() {
   const button = document.querySelector<HTMLInputElement>("button[type=button]#step")!;
   button.onclick = step;
-  return button;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
