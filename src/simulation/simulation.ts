@@ -71,9 +71,6 @@ export class Simulation {
     }
 
     private initializeStatistics() {
-
-        const statisticsContainer = document.querySelector<HTMLParagraphElement>('p#statistics')!;
-        statisticsContainer.style.whiteSpace = 'pre';
         return {
             airPollution: { set: [], stdDeviation: 0, mean: 0, },
             temperature: { set: [], stdDeviation: 0, mean: 0, }
@@ -115,8 +112,10 @@ export class Simulation {
         const pollutionText = pollutionTexts.map((text) => `\t${text}`).join('\n');
         const temperatureText = temperatureTexts.map((text) => `\t${text}`).join('\n');
 
-        const statisticsContainer = document.querySelector<HTMLDivElement>('p#statistics')!;
-        statisticsContainer.innerText = `AirPollution:\n${pollutionText}\nTemperature:\n${temperatureText}`;
+        const statisticsContainer = document.querySelector<HTMLDivElement>('#statistics-container')!;
+        statisticsContainer.hidden = false;
+        const statisticsData = statisticsContainer.querySelector<HTMLParagraphElement>('p#statistics')!;
+        statisticsData.innerText = `AirPollution:\n${pollutionText}\nTemperature:\n${temperatureText}`;
     }
 
     private moveCellNextGen(cell: Cell) {
