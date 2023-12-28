@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + TS</title>
   </head>
@@ -20,10 +20,16 @@
       <p id="statistics"></p>
     </main>
     <footer>
-      <button type="button" id="step" title="step">Step</button>
+      <button type="button" id="step" title="step">Next Generation</button>
       <div class="auto-step">
-        <input id="auto-step" type="checkbox" title="auto step">
-        <input id="auto-step-speed" type="range" title="auto step speed">
+        <header>
+          auto step generations
+        </header>
+        <div class="auto-step-controls">
+          <input id="auto-step" type="checkbox" title="auto step generations" />
+          <input id="auto-step-speed" type="range" title="auto step generations speed" />
+          <label for="auto-step-speed"></label>
+        </div>
       </div>
     </footer>
     <script type="module" src="/src/main.ts"></script>

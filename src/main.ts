@@ -66,15 +66,18 @@ function createLoopControls() {
   };
 
   const slider = document.querySelector<HTMLInputElement>("input[type=range]#auto-step-speed")!;
+  const sliderLabel = document.querySelector<HTMLLabelElement>('[for=auto-step-speed]')!;
   slider.min = "1";
   slider.max = "100";
   slider.step = "1";
   slider.value = initialSliderValue.toString();
-  slider.title = `steps per second- ${slider.value}`;
+  slider.title = `generations per second- ${slider.value}`;
+  sliderLabel.innerText = `generations per second- ${slider.value}`;
 
   slider.oninput = () => {
     timePerFrame = 1000 / Number(slider.value);
-    slider.title = `steps per second- ${slider.value}`;
+    slider.title = `generations per second- ${slider.value}`;
+    sliderLabel.innerText = `generations per second- ${slider.value}`;
     clearInterval(loopInterval);
     loopInterval = setInterval(() => {
       if (!checkbox.checked) {
