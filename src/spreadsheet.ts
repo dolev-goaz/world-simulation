@@ -15,7 +15,7 @@ const headerInfo = {
     airPollution: {
         header: 'Air Pollution',
         width: 14,
-        style: { numFmt: '0.0000'}
+        style: { numFmt: '0.00%'}
     },
     temperatureNormalized: {
         header: 'Temperature Normalized',
@@ -25,9 +25,9 @@ const headerInfo = {
     airPollutionNormalized: {
         header: 'Air Pollution Normalized',
         width: 25,
-        style: { numFmt: '0.0000'}
+        style: { numFmt: '0.0000'},
     },
-};
+} as Record<string, Partial<ExcelJS.Column>>;
 
 const headerKeys = Object.keys(headerInfo) as Array<keyof typeof headerInfo>;
 
