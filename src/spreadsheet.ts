@@ -12,7 +12,7 @@ const headerInfo = {
         order: 1,
         header: 'Temperature',
         width: 13,
-        style: { numFmt: '0.0000' }
+        style: { numFmt: '0.0000ºC' }
     },
     airPollution: {
         order: 2,
@@ -24,7 +24,7 @@ const headerInfo = {
         order: 3,
         header: 'Temperature Normalized',
         width: 25,
-        style: { numFmt: '0.0000' }
+        style: { numFmt: '0.0000ºC' }
     },
     airPollutionNormalized: {
         order: 4,
@@ -65,8 +65,10 @@ function writeStatisticsMinMax(worksheet: ExcelJS.Worksheet, statistics: Statist
         worksheet.getCell(headerRow, startColumn).style = {
             alignment: { horizontal: 'center' },
             fill: { type: "pattern", pattern: "solid", fgColor: { argb: "FF3399FF" } },
-            font: { color: { argb: 'FFFFFFFF' } }
+            font: { color: { argb: 'FFFFFFFF' }, bold: true }
         };
+        worksheet.getColumn(startColumn).width = headerData.width;
+        worksheet.getColumn(startColumn + 1).width = headerData.width;
 
         worksheet.getCell(headerRow + 1, startColumn).value = 'min';
         worksheet.getCell(headerRow + 1, startColumn).style = { alignment: { horizontal: 'center' } };
