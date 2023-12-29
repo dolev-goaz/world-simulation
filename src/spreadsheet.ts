@@ -24,7 +24,7 @@ const headerInfo = {
         order: 3,
         header: 'Temperature Normalized',
         width: 25,
-        style: { numFmt: '0.0000ºC' }
+        style: { numFmt: '0.0000' }
     },
     airPollutionNormalized: {
         order: 4,
