@@ -196,13 +196,14 @@ export class Simulation {
 
         const cellCloud = cell.currentGenerationFields.cloud;
         if (!cellCloud) return;
-        // TODO: maybe account for affecting neighboring cell's temperature? wind carries heat?
+        // in this simulation, clouds can cool an area but not warm it
         if (cellCloud.timeToRain <= 0) {
             const delta = cell.nextGenerationFields.temperature - config.RainTemperature;
-            cell.nextGenerationFields.temperature -= delta * config.RainTemperatureStepRatio;
+            if (delta > 0) {
+                cell.nextGenerationFields.temperature -= delta * config.RainTemperatureStepRatio;
+            }
         } else {
             const delta = cell.nextGenerationFields.temperature - config.CloudShadeMinTemperature;
-            // in this simulation, clouds can cool an area but not warm it
             if (delta > 0) {
                 cell.nextGenerationFields.temperature -= delta * config.CloudTemperatureStepRatio;
             }
