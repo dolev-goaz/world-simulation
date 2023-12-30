@@ -52,6 +52,8 @@ export async function writeSpreadSheet(statistics: Statistics, filename: string 
     FileSaver.saveAs(new Blob([buffer]), `${filename}.xlsx`);
 }
 function writeStatisticsMinMax(worksheet: ExcelJS.Worksheet, statistics: Statistics) {
+    const spaceBetweenTables = 1;
+    const columnsPerTable = 4;
     const headerRow = 3;
     let startColumn = worksheet.columns.length + 3;
     const keys = Object.keys(statistics) as Array<keyof Statistics>;
@@ -60,16 +62,16 @@ function writeStatisticsMinMax(worksheet: ExcelJS.Worksheet, statistics: Statist
         const headerData = headerInfo[key];
         const dataColumn = worksheet.getColumn(headerData.order + 1).letter; // indexes are 1-based in excel
 
-        worksheet.mergeCells(headerRow, startColumn, headerRow, startColumn + 1);
+        worksheet.mergeCells(headerRow, startColumn, headerRow, startColumn + (columnsPerTable - 1));
         worksheet.getCell(headerRow, startColumn).value = headerData.header;
         worksheet.getCell(headerRow, startColumn).style = {
             alignment: { horizontal: 'center' },
             fill: { type: "pattern", pattern: "solid", fgColor: { argb: "FF3399FF" } },
             font: { color: { argb: 'FFFFFFFF' }, bold: true }
         };
-        worksheet.getColumn(startColumn).width = headerData.width;
-        worksheet.getColumn(startColumn + 1).width = headerData.width;
+        Array.from({length: columnsPerTable}).forEach((_, ind) => worksheet.getColumn(startColumn + ind).width = headerData.width);
 
+        // min
         worksheet.getCell(headerRow + 1, startColumn).value = 'min';
         worksheet.getCell(headerRow + 1, startColumn).style = { alignment: { horizontal: 'center' } };
 
@@ -78,6 +80,7 @@ function writeStatisticsMinMax(worksheet: ExcelJS.Worksheet, statistics: Statist
         };
         worksheet.getCell(headerRow + 2, startColumn).style = { ...headerData.style, alignment: { horizontal: 'center' } };
 
+        // max
         worksheet.getCell(headerRow + 1, startColumn + 1).value = 'max';
         worksheet.getCell(headerRow + 1, startColumn + 1).style = { alignment: { horizontal: 'center' } };
         worksheet.getCell(headerRow + 2, startColumn + 1).value = {
@@ -85,7 +88,23 @@ function writeStatisticsMinMax(worksheet: ExcelJS.Worksheet, statistics: Statist
         };
         worksheet.getCell(headerRow + 2, startColumn + 1).style = { ...headerData.style, alignment: { horizontal: 'center' } };
 
-        startColumn += 3;
+        // mean
+        worksheet.getCell(headerRow + 1, startColumn + 2).value = 'mean';
+        worksheet.getCell(headerRow + 1, startColumn + 2).style = { alignment: { horizontal: 'center' } };
+        worksheet.getCell(headerRow + 2, startColumn + 2).value = {
+            formula: `AVERAGE(${dataColumn}:${dataColumn})`
+        };
+        worksheet.getCell(headerRow + 2, startColumn + 2).style = { ...headerData.style, alignment: { horizontal: 'center' } };
+
+        // standard deviation
+        worksheet.getCell(headerRow + 1, startColumn + 3).value = 'stdev';
+        worksheet.getCell(headerRow + 1, startColumn + 3).style = { ...headerData.style, alignment: { horizontal: 'center' } };
+        worksheet.getCell(headerRow + 2, startColumn + 3).value = {
+            formula: `STDEV(${dataColumn}:${dataColumn})`
+        };
+        worksheet.getCell(headerRow + 2, startColumn + 3).style = { ...headerData.style, alignment: { horizontal: 'center' } };
+
+        startColumn += columnsPerTable + spaceBetweenTables;
     });
 }
 
