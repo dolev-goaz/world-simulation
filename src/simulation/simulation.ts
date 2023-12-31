@@ -36,7 +36,7 @@ export class Simulation {
             const indexX = index % config.CellsInColumn
             const indexY = (index - indexX) / config.CellsInRow;
             const temperature = config.InitialTemperatures[area];
-            const pollution = config.InitialPollution[area];
+            const pollution = config.StaticInitialPollution + config.InitialPollution[area];
 
             const wind = undefined;
             return createCell(indexX, indexY, config.CellSize, wind, area, temperature, pollution);

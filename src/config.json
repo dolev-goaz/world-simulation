@@ -22,7 +22,7 @@
     "Land": 23,
     "Iceberg": -14
   },
-
+  "StaticInitialPollution": 0.00,
   "InitialPollution": {
     "Forest": 0.05,
     "City": 0.2,
