@@ -49,6 +49,7 @@ export class Simulation {
         });
 
         this.statistics = this.initializeStatistics();
+        this.calculateStatistics();
     }
 
     private updateHeader() {

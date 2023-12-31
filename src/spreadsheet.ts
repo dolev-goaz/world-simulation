@@ -144,7 +144,7 @@ function combineStatistics(dataSets: Record<string, number[]>) {
         const out: Record<string, number> = {};
 
         keys.forEach((key) => out[key] = dataSets[key][index]);
-        out['row'] = index + 1;
+        out['row'] = index;
         return out;
     });
 }
