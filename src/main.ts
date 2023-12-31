@@ -14,9 +14,14 @@ function step() {
 function exportSimulationData() {
   writeSpreadSheet(simulation.statistics, 'export_simulation');
 }
+function updateMapSize(cellSize: number) {
+  simulation.map.setCellSizeMultiplier(cellSize);
+  simulation.map.draw();
+}
 setupControls({
   spreadSheetExport: exportSimulationData,
-  step: step
+  step: step,
+  onChangeSize: updateMapSize
 });
 
 simulation.map.draw();

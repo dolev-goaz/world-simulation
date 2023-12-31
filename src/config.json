@@ -1,5 +1,10 @@
 {
-  "CellSize": 50,
+  "CellSize": {
+    "Min": 3,
+    "Max": 6,
+    "Initial": 5,
+    "Multiplier": 10
+  },
   "CellsInRow": 15,
   "CellsInColumn": 15,
 

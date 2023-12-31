@@ -6,6 +6,12 @@ const cellBorderThickness = 1;
 
 const images = new Map<string, HTMLImageElement>();
 
+type DrawData = {
+    drawX: number;
+    drawY: number;
+    drawSize: number;
+};
+
 export type CloudInfo = {
     lifeRemaining: number;
 
@@ -25,9 +31,6 @@ export type SimulationFields = {
 export type Cell = {
     indexX: number;
     indexY: number;
-    drawX: number;
-    drawY: number;
-    drawSize: number;
 
     currentGenerationFields: SimulationFields;
     nextGenerationFields: Partial<SimulationFields>;
@@ -37,18 +40,14 @@ export type Cell = {
 export function createCell(
     indexX: number,
     indexY: number,
-    drawSize: number,
     wind: WindInfo | undefined,
     area: TArea,
     initialTemperature: number,
     initialAirPollution: number,
 ): Cell {
     return {
-        drawSize: drawSize,
         indexX: indexX,
         indexY: indexY,
-        drawX: indexX * drawSize,
-        drawY: indexY * drawSize,
         currentGenerationFields: {
             wind: wind,
             strokeColor: 'black',
@@ -60,38 +59,43 @@ export function createCell(
     }
 }
 
-export function drawCell(ctx: CanvasRenderingContext2D, cell: Cell) {
-    drawArea(ctx, cell);
-    drawWind(ctx, cell);
-    drawCloud(ctx, cell);
-    drawTemperature(ctx, cell);
+export function drawCell(ctx: CanvasRenderingContext2D, cell: Cell, cellSize: number) {
+    const drawData: DrawData = {
+        drawX: cellSize * cell.indexX,
+        drawY: cellSize * cell.indexY,
+        drawSize: cellSize
+    };
+    drawArea(ctx, cell, drawData);
+    drawWind(ctx, cell, drawData);
+    drawCloud(ctx, cell, drawData);
+    drawTemperature(ctx, cell, drawData);
 }
 
-function drawArea(ctx: CanvasRenderingContext2D, cell: Cell) {
+function drawArea(ctx: CanvasRenderingContext2D, cell: Cell, drawData: DrawData) {
     ctx.strokeStyle = cell.currentGenerationFields.strokeColor;
-    ctx.strokeRect(cell.drawX, cell.drawY, cell.drawSize, cell.drawSize);
+    ctx.strokeRect(drawData.drawX, drawData.drawY, drawData.drawSize, drawData.drawSize);
 
     ctx.fillStyle = AreaColor[cell.currentGenerationFields.area];
     ctx.fillRect(
-        cell.drawX + cellBorderThickness,
-        cell.drawY + cellBorderThickness,
-        cell.drawSize - 2 * cellBorderThickness,
-        cell.drawSize - 2 * cellBorderThickness
+        drawData.drawX + cellBorderThickness,
+        drawData.drawY + cellBorderThickness,
+        drawData.drawSize - 2 * cellBorderThickness,
+        drawData.drawSize - 2 * cellBorderThickness
     );
 }
 
-function drawWind(ctx: CanvasRenderingContext2D, cell: Cell) {
+function drawWind(ctx: CanvasRenderingContext2D, cell: Cell, drawData: DrawData) {
     const wind = cell.currentGenerationFields.wind;
     if (!wind) return;
     const arrow = DirectionArrows[wind.direction];
 
-    const fontSize = cell.drawSize / 4;
+    const fontSize = drawData.drawSize / 4;
     ctx.font = `${fontSize}px serif`;
     ctx.strokeStyle = 'black';
-    ctx.strokeText(arrow, cell.drawX + 5, cell.drawY + fontSize, fontSize);
+    ctx.strokeText(arrow, drawData.drawX + 5, drawData.drawY + fontSize, fontSize);
 }
 
-function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
+function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell, drawData: DrawData) {
     const cloud = cell.currentGenerationFields.cloud;
     if (!cloud) return;
     const raining = cloud.timeToRain <= 0;
@@ -99,10 +103,10 @@ function drawCloud(ctx: CanvasRenderingContext2D, cell: Cell) {
     const image = getImage(src);
 
     const paddingX = 10;
-    const width = cell.drawSize - 2 * paddingX;
+    const width = drawData.drawSize - 2 * paddingX;
     const height = (image.height / image.width) * width; // scale height to the new width
-    const drawX = cell.drawX + paddingX;
-    const drawY = cell.drawY + cell.drawSize - height - 2; // padding-y = 2
+    const drawX = drawData.drawX + paddingX;
+    const drawY = drawData.drawY + drawData.drawSize - height - 2; // padding-y = 2
 
     ctx.drawImage(image, 0, 0 , image.width, image.height, drawX, drawY, width, height)
 }
@@ -116,13 +120,13 @@ function getImage(src: string) {
     return image;
 }
 
-function drawTemperature(ctx: CanvasRenderingContext2D, cell: Cell) {
-    const fontSize = cell.drawSize / 4;
+function drawTemperature(ctx: CanvasRenderingContext2D, cell: Cell, drawData: DrawData) {
+    const fontSize = drawData.drawSize / 4;
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = 'black';
     const temperature = cell.currentGenerationFields.temperature.toFixed(0);
     const temperatureText = `${temperature}ºC`;
-    const drawX = cell.drawX + cell.drawSize / 2.6;
-    const drawY = cell.drawY;
+    const drawX = drawData.drawX + drawData.drawSize / 2.6;
+    const drawY = drawData.drawY;
     ctx.strokeText(temperatureText, drawX, drawY + fontSize);
 }

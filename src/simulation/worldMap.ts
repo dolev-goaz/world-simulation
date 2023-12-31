@@ -8,7 +8,10 @@ export class WorldMap {
     private ctx: CanvasRenderingContext2D;
     private cellTooltip: HTMLParagraphElement;
 
+    private cellSizeMultiplier: number;
+
     constructor(cells: Cell[] = []) {
+        this.cellSizeMultiplier = config.CellSize.Initial;
         const htmlElements = this.initializeMapHTML();
         if (!htmlElements) {
             alert("Error");
@@ -24,8 +27,19 @@ export class WorldMap {
         this.cells = cells;
     }
 
+    setCellSizeMultiplier(multiplier: number) {
+        this.cellSizeMultiplier = multiplier;
+
+        this.canvas.width = this.cellSize * config.CellsInColumn;
+        this.canvas.height = this.cellSize * config.CellsInRow;
+    }
+
     private drawCell(cell: Cell) {
-        drawCell(this.ctx, cell);
+        drawCell(this.ctx, cell, this.cellSize);
+    }
+
+    get cellSize() {
+        return this.cellSizeMultiplier * config.CellSize.Multiplier;
     }
 
     draw() {
@@ -40,8 +54,8 @@ export class WorldMap {
     }
 
     private onCanvasHover(event: MouseEvent) {
-        const x = Math.floor(event.offsetX / config.CellSize);
-        const y = Math.floor(event.offsetY / config.CellSize);
+        const x = Math.floor(event.offsetX / this.cellSize);
+        const y = Math.floor(event.offsetY / this.cellSize);
 
         const cell = this.cells[y * config.CellsInRow + x];
         const debugData = JSON.stringify(
@@ -62,8 +76,8 @@ export class WorldMap {
         if (!canvasParent) return;
         const canvas = canvasParent.querySelector<HTMLCanvasElement>("canvas");
         if (!canvas) return;
-        canvas.width = config.CellSize * config.CellsInColumn;
-        canvas.height = config.CellSize * config.CellsInRow;
+        canvas.width = this.cellSize * config.CellsInColumn;
+        canvas.height = this.cellSize * config.CellsInRow;
         canvas.onmousemove = this.onCanvasHover.bind(this);
         canvas.onmouseleave = this.onCanvasHoverEnd.bind(this);
 

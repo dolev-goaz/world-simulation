@@ -1,13 +1,27 @@
-type fn = () => void;
+import config from "@/config.json";
+
+type fn<T extends any[] = []> = (...args: T) => void;
 type ControlsData = {
     spreadSheetExport: fn;
     step: fn;
+    onChangeSize: fn<[number]>;
 }
 
 export function setupControls(options: ControlsData) {
     createExport(options.spreadSheetExport);
     createLoopControls(options.step);
     createStepButton(options.step);
+    createGridSizeControl(options.onChangeSize);
+}
+
+function createGridSizeControl(onChange: fn<[number]>) {
+    const size = document.querySelector<HTMLInputElement>('input#grid-size')!;
+    size.value = config.CellSize.Initial.toString();
+    size.min = config.CellSize.Min.toString();
+    size.max = config.CellSize.Max.toString();
+    size.oninput = () => {
+        onChange(parseInt(size.value));
+    }
 }
 
 function createExport(exportMethod: fn) {

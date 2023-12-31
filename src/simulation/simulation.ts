@@ -39,7 +39,7 @@ export class Simulation {
             const pollution = config.StaticInitialPollution + config.InitialPollution[area];
 
             const wind = undefined;
-            return createCell(indexX, indexY, config.CellSize, wind, area, temperature, pollution);
+            return createCell(indexX, indexY, wind, area, temperature, pollution);
         })
         this.map = new WorldMap(cells);
 
