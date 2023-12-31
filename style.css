@@ -55,6 +55,13 @@ nav {
   padding: 1rem 2rem;
   background-color: lightgray;
   z-index: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+nav>#export-excel {
+  margin-inline-end: 0.75rem;
 }
 footer {
   position: sticky;
