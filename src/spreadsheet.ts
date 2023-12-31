@@ -136,10 +136,7 @@ function normalizedStatistics(statistics: Statistics) {
 
 function combineStatistics(dataSets: Record<string, number[]>) {
     const keys = Object.keys(dataSets);
-
     const setLength = Math.min(...Object.values(dataSets).map((set) => set.length));
-    console.log(setLength)
-
     return Array.from({ length: setLength }).map((_, index) => {
         const out: Record<string, number> = {};
 
